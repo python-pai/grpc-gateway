@@ -21,7 +21,7 @@ from example.grpc_common.python_example_proto_code.example_proto_by_option.other
 from example.grpc_common.python_example_proto_code.example_proto_by_option.user import (
     user_pb2_grpc as user_by_option_service,
 )
-from grpc_gateway.inspect import ParseStub
+from grpc_gateway.dynamic_gateway.inspect import ParseStub
 
 logger: logging.Logger = logging.getLogger()
 

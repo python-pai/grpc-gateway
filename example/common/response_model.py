@@ -6,7 +6,7 @@ from pait.model import JsonResponseModel
 from protobuf_to_pydantic import msg_to_pydantic_model
 from pydantic import BaseModel, Field
 
-from grpc_gateway.inspect import GrpcMethodModel
+from grpc_gateway.dynamic_gateway.inspect import GrpcMethodModel
 from grpc_gateway.rebuild_message import rebuild_message_type
 
 

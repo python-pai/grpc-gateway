@@ -22,7 +22,7 @@ from example.grpc_common.python_example_proto_code.example_proto_by_option.book 
 from example.grpc_common.python_example_proto_code.example_proto_by_option.other import other_pait_route
 from example.grpc_common.python_example_proto_code.example_proto_by_option.user import user_pait_route
 from example.starlette_example.utils import create_app
-from grpc_gateway.gateway.dynamic_gateway import AsyncGrpcGatewayRoute as GrpcGatewayRoute
+from grpc_gateway.dynamic_gateway.gateway import AsyncGrpcGatewayRoute as GrpcGatewayRoute
 
 message_to_dict = partial(MessageToDict, including_default_value_fields=True, preserving_proto_field_name=True)
 
@@ -33,7 +33,7 @@ def add_grpc_gateway_route(app: Starlette) -> None:
     from uuid import uuid4
 
     from example.grpc_common.python_example_proto_code.example_proto.user import user_pb2
-    from grpc_gateway.inspect import GrpcMethodModel
+    from grpc_gateway.dynamic_gateway.inspect import GrpcMethodModel
     from grpc_gateway.types import Message
 
     def _make_response(resp_dict: dict) -> dict:

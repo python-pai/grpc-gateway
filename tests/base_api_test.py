@@ -4,7 +4,7 @@ from pait.app.base import BaseTestHelper
 from pait.openapi.openapi import OpenAPI
 
 from example.common.response_model import gen_response_model_handle
-from grpc_gateway.gateway.dynamic_gateway import DynamicGrpcGatewayRoute
+from grpc_gateway.dynamic_gateway.gateway import DynamicGrpcGatewayRoute
 from tests.conftest import grpc_test_openapi
 
 

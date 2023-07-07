@@ -12,9 +12,9 @@ from pait.model import BaseResponseModel, JsonResponseModel, Tag
 from protobuf_to_pydantic import msg_to_pydantic_model
 from pydantic import BaseModel
 
+from grpc_gateway.base_gateway import BaseGrpcGatewayRoute
 from grpc_gateway.desc_template import DescTemplate
-from grpc_gateway.gateway.base_gateway import BaseGrpcGatewayRoute
-from grpc_gateway.inspect import GrpcMethodModel, Message, MessageToDict, ParseStub
+from grpc_gateway.dynamic_gateway.inspect import GrpcMethodModel, Message, MessageToDict, ParseStub
 from grpc_gateway.rebuild_message import rebuild_message_type
 
 __all__ = ["DynamicGrpcGatewayRoute", "AsyncGrpcGatewayRoute", "GrpcGatewayRoute"]

@@ -5,8 +5,8 @@ from tornado.testing import AsyncHTTPTestCase
 from tornado.web import Application
 
 from example.tornado_example import grpc_route
-from grpc_gateway.gateway.base_gateway import _grpc_gateway_title_set
-from grpc_gateway.gateway.dynamic_gateway import AsyncGrpcGatewayRoute as GrpcGatewayRoute
+from grpc_gateway.base_gateway import _grpc_gateway_title_set
+from grpc_gateway.dynamic_gateway.gateway import AsyncGrpcGatewayRoute as GrpcGatewayRoute
 from tests.base_api_test import BaseTest
 from tests.conftest import grpc_request_test, grpc_test_openapi
 

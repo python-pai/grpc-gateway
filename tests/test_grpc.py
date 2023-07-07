@@ -6,8 +6,8 @@ from pait.util import gen_example_dict_from_pydantic_base_model
 from pydantic import BaseModel, Field
 
 from example.grpc_common.python_example_proto_code.example_proto_by_option.user import user_pb2
-from grpc_gateway.gateway.dynamic_gateway import _gen_response_model_handle
-from grpc_gateway.inspect import GrpcMethodModel
+from grpc_gateway.dynamic_gateway.gateway import _gen_response_model_handle
+from grpc_gateway.dynamic_gateway.inspect import GrpcMethodModel
 from grpc_gateway.model import GrpcServiceOptionModel
 from grpc_gateway.rebuild_message import rebuild_dict, rebuild_message_type
 from grpc_gateway.types import Message

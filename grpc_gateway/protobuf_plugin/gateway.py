@@ -1,12 +1,10 @@
-from typing import Any, Callable, List, Optional, Type, Union
+from typing import Any, Callable, List, Optional, Union
 
 import grpc
-from any_api.openapi import BaseResponseModel
 from google.protobuf.json_format import MessageToDict
 from pait.app import add_multi_simple_route as _add_multi_simple_route
 from pait.core import Pait
-from grpc_gateway.gateway.base_gateway import BaseGrpcGatewayRoute
-from grpc_gateway.inspect import GrpcMethodModel
+from grpc_gateway.base_gateway import BaseGrpcGatewayRoute
 from pait.util import get_real_annotation
 
 
@@ -27,7 +25,6 @@ class BaseStaticGrpcGatewayRoute(BaseGrpcGatewayRoute):
         pait: Optional[Pait] = None,
         make_response: Optional[Callable] = None,
         add_multi_simple_route: Optional[Callable] = None,
-        gen_response_model_handle: Optional[Callable[[GrpcMethodModel], Type[BaseResponseModel]]] = None,
         **kwargs: Any,
     ):
         """
@@ -43,7 +40,6 @@ class BaseStaticGrpcGatewayRoute(BaseGrpcGatewayRoute):
         :param pait: instance of pait
         :param make_response: The method of converting Message to Response object
         :param add_multi_simple_route: A function that registers multiple routes with the app
-        :param gen_response_model_handle: Methods for generating OpenAPI response objects
         :param kwargs: Extended parameters supported by the `add multi simple route` function of different frameworks
         """
         super().__init__(
@@ -55,7 +51,6 @@ class BaseStaticGrpcGatewayRoute(BaseGrpcGatewayRoute):
             parse_dict=parse_dict,
             pait=pait,
             make_response=make_response,
-            gen_response_model_handle=gen_response_model_handle,
             add_multi_simple_route=add_multi_simple_route,
             kwargs=kwargs,
         )

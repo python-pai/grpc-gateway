@@ -95,7 +95,7 @@ def fixture_loop(mock_close_loop: bool = False) -> Generator[asyncio.AbstractEve
 def grpc_request_test(app: Any) -> Generator[Queue, None, None]:
     from pait.app import get_app_attribute
 
-    from grpc_gateway.gateway.dynamic_gateway import AsyncGrpcGatewayRoute, DynamicGrpcGatewayRoute
+    from grpc_gateway.dynamic_gateway.gateway import AsyncGrpcGatewayRoute, DynamicGrpcGatewayRoute
     from grpc_gateway.protobuf_plugin.gateway import BaseStaticGrpcGatewayRoute
 
     grpc_gateway_route: DynamicGrpcGatewayRoute = get_app_attribute(app, "grpc_gateway_route")
