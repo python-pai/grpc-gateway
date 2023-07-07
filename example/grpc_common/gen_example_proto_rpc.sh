@@ -16,7 +16,7 @@ source_p='example_proto'
 # service
 service_list=("book" "user" "common" "other")
 
-rm -r "${target_p:?}/${source_p:?}"*
+rm -r "${target_p:?}/${source_p:?}/"*
 mkdir -p "${target_p:?}/${source_p:?}"
 
 for service in "${service_list[@]}"

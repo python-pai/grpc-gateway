@@ -62,7 +62,7 @@ service BookSocial {
   rpc like_book (LikeBookRequest) returns (google.protobuf.Empty);
   rpc like_multi_book (LikeBookMapRequest) returns (google.protobuf.Empty);
   rpc get_book_like (GetBookLikesRequest) returns (GetBookLikesListResult) {
-    option (pait.api.http) = {
+    option (grpc_gateway.api.http) = {
       get: {default: true}
       additional_bindings: {
         post: {url: "/book/get-book-like"},
@@ -71,7 +71,7 @@ service BookSocial {
     };
   };
   rpc get_book_like_other (NestedGetBookLikesRequest) returns (GetBookLikesListResult) {
-    option (pait.api.http) = {
+    option (grpc_gateway.api.http) = {
       post: {url: "/book/get-book-like-other"},
       request_message: {nested: "/nested"}
     };

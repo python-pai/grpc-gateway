@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import logging
 
-from pait.grpc.plugin.code_gen import CodeGen
+from grpc_gateway.protobuf_plugin.code_gen import CodeGen
 
 logger = logging.getLogger(__name__)
 

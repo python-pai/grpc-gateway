@@ -26,8 +26,8 @@ class OtherServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def nested_demo(self, request, context):
-        """pait: {"http_method": "POST", "url": "/other/nested-demo"}
-        pait: {"response_message": {"nested": "/map_demo/${}/repeated_demo/$[]/$.map_demo/${}/repeated_demo"}}
+        """grpc-gateway: {"http_method": "POST", "url": "/other/nested-demo"}
+        grpc-gateway: {"response_message": {"nested": "/map_demo/${}/repeated_demo/$[]/$.map_demo/${}/repeated_demo"}}
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')

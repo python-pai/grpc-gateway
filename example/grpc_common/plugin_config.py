@@ -4,12 +4,13 @@ from typing import List, Set, Type
 
 from google.protobuf.any_pb2 import Any  # type: ignore
 from jinja2 import Template
-from pait.grpc.plugin.field_desc_proto_to_route_code import (
-    FileDescriptorProtoToRouteCode as _FileDescriptorProtoToRouteCode,
-)
-from pait.grpc.plugin.field_desc_proto_to_route_code import GrpcModel
 from pydantic import confloat, conint
 from pydantic.fields import FieldInfo
+
+from grpc_gateway.protobuf_plugin.field_desc_proto_to_route_code import (
+    FileDescriptorProtoToRouteCode as _FileDescriptorProtoToRouteCode,
+)
+from grpc_gateway.protobuf_plugin.field_desc_proto_to_route_code import GrpcTemplateVarModel
 
 logging.basicConfig(format="[%(asctime)s %(levelname)s] %(message)s", datefmt="%y-%m-%d %H:%M:%S", level=logging.INFO)
 
@@ -28,9 +29,9 @@ local_dict = {
     "conint": conint,
     "customer_any": customer_any,
 }
-comment_prefix = "pait"
+comment_prefix = "grpc-gateway"
 # desc_template: Type[DescTemplate] = DescTemplate
-ignore_pkg_list: List[str] = ["validate", "p2p_validate", "pait.api"]
+ignore_pkg_list: List[str] = ["validate", "p2p_validate", "grpc_gateway.api"]
 empty_type = dict
 
 
@@ -63,7 +64,7 @@ class FileDescriptorProtoToRouteCode(_FileDescriptorProtoToRouteCode):
     """
     )
 
-    def get_route_code(self, grpc_model: GrpcModel, template_dict: dict) -> str:
+    def get_route_code(self, grpc_model: GrpcTemplateVarModel, template_dict: dict) -> str:
         if grpc_model.grpc_descriptor_method.name in ("login_user", "create_user"):
             return super().get_route_code(grpc_model, template_dict)
 

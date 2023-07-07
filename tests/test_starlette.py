@@ -13,6 +13,8 @@ from starlette.testclient import TestClient
 
 from example.starlette_example import grpc_route
 from example.starlette_example.utils import api_exception
+from grpc_gateway.gateway.base_gateway import _grpc_gateway_title_set
+from grpc_gateway.gateway.dynamic_gateway import AsyncGrpcGatewayRoute as GrpcGatewayRoute
 from tests.base_api_test import BaseTest
 from tests.conftest import grpc_request_test, grpc_test_openapi
 
@@ -36,6 +38,7 @@ def get_app() -> Starlette:
     if loop.is_closed():
         asyncio.set_event_loop(asyncio.new_event_loop())
 
+    _grpc_gateway_title_set.clear()
     app = Starlette()
     app.add_exception_handler(PaitBaseException, api_exception)
     app.add_exception_handler(ValidationError, api_exception)
@@ -209,12 +212,8 @@ class TestStarletteGrpc:
             grpc_test_openapi(client.app, url_prefix="/api/static", option_str="_by_option")
 
     def test_grpc_openapi_by_protobuf_file(self, base_test: BaseTest) -> None:
-        from pait.grpc import AsyncGrpcGatewayRoute as GrpcGatewayRoute
-
         base_test.grpc_openapi_by_protobuf_file(base_test.client.app, GrpcGatewayRoute)
 
     def test_grpc_openapi_by_option(self) -> None:
-        from pait.grpc import AsyncGrpcGatewayRoute as GrpcGatewayRoute
-
         with base_test_ctx() as base_test:
             base_test.grpc_openapi_by_option(base_test.client.app, GrpcGatewayRoute)

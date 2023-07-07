@@ -4,7 +4,7 @@ from typing import Type
 
 from google.protobuf.compiler.plugin_pb2 import CodeGeneratorResponse
 from mypy_protobuf.main import Descriptors, code_generation
-from pait.grpc.plugin.config import ConfigModel
+from grpc_gateway.protobuf_plugin.config import ConfigModel
 from protobuf_to_pydantic.plugin.code_gen import CodeGen as _CodeGen
 from protobuf_to_pydantic.plugin.code_gen import ConfigT
 
@@ -12,7 +12,7 @@ from protobuf_to_pydantic.plugin.code_gen import ConfigT
 #   see details:https://stackoverflow.com/a/59301849
 from protobuf_to_pydantic.plugin.code_gen import p2p_validate_pb2  # isort:skip
 from protobuf_to_pydantic.plugin.code_gen import validate_pb2  # isort:skip
-from pait.grpc.proto import api_pb2  # isort:skip
+from grpc_gateway.proto import api_pb2  # isort:skip
 
 
 logger = logging.getLogger(__name__)

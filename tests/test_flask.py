@@ -9,12 +9,15 @@ from pait.app.flask import TestHelper as _TestHelper
 
 from example.flask_example import grpc_route
 from example.flask_example.utils import api_exception
+from grpc_gateway.gateway.base_gateway import _grpc_gateway_title_set
+from grpc_gateway.gateway.dynamic_gateway import GrpcGatewayRoute
 from tests.base_api_test import BaseTest
 from tests.conftest import grpc_request_test, grpc_test_openapi
 
 
 @contextmanager
 def client_ctx() -> Generator[FlaskClient, None, None]:
+    _grpc_gateway_title_set.clear()
     # Flask provides a way to test your application by exposing the Werkzeug test Client
     # and handling the context locals for you.
     app: Flask = Flask("test")
@@ -188,13 +191,9 @@ class TestFlaskGrpc:
             grpc_test_openapi(client.application, url_prefix="/api/static", option_str="_by_option")
 
     def test_grpc_openapi_by_protobuf_file(self) -> None:
-        from pait.grpc import GrpcGatewayRoute
-
         with base_test_ctx() as base_test:
             base_test.grpc_openapi_by_protobuf_file(base_test.client.application, GrpcGatewayRoute)
 
     def test_grpc_openapi_by_option(self) -> None:
-        from pait.grpc import GrpcGatewayRoute
-
         with base_test_ctx() as base_test:
             base_test.grpc_openapi_by_option(base_test.client.application, GrpcGatewayRoute)

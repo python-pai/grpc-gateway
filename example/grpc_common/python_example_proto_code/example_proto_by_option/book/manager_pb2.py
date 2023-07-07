@@ -18,7 +18,7 @@ from example.grpc_common.python_example_proto_code.example_proto_by_option.commo
 from example.grpc_common.python_example_proto_code.example_proto_by_option.common import api_pb2 as example__proto__by__option_dot_common_dot_api__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n*example_proto_by_option/book/manager.proto\x12\x16\x62ook_manager_by_option\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x31\x65xample_proto_by_option/common/p2p_validate.proto\x1a(example_proto_by_option/common/api.proto\"n\n\x11\x43reateBookRequest\x12\x0c\n\x04isbn\x18\x01 \x01(\t\x12\x11\n\tbook_name\x18\x02 \x01(\t\x12\x13\n\x0b\x62ook_author\x18\x03 \x01(\t\x12\x11\n\tbook_desc\x18\x04 \x01(\t\x12\x10\n\x08\x62ook_url\x18\x05 \x01(\t\"!\n\x11\x44\x65leteBookRequest\x12\x0c\n\x04isbn\x18\x01 \x01(\t\"h\n\x0eGetBookRequest\x12&\n\x04isbn\x18\x01 \x01(\tB\x18\x8a\x43\x15r\x13\x82\x02\x10pait@field|Query\x12\x16\n\x0enot_use_field1\x18\x02 \x01(\t\x12\x16\n\x0enot_use_field2\x18\x03 \x01(\t\"\xcc\x01\n\rGetBookResult\x12\x0c\n\x04isbn\x18\x01 \x01(\t\x12\x11\n\tbook_name\x18\x02 \x01(\t\x12\x13\n\x0b\x62ook_author\x18\x03 \x01(\t\x12\x11\n\tbook_desc\x18\x04 \x01(\t\x12\x10\n\x08\x62ook_url\x18\x05 \x01(\t\x12/\n\x0b\x63reate_time\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12/\n\x0bupdate_time\x18\x07 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"s\n\x12GetBookListRequest\x12\x39\n\x10next_create_time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.TimestampH\x00\x88\x01\x01\x12\r\n\x05limit\x18\x02 \x01(\x05\x42\x13\n\x11_next_create_time\"J\n\x11GetBookListResult\x12\x35\n\x06result\x18\x01 \x03(\x0b\x32%.book_manager_by_option.GetBookResult2\xd3\x03\n\x0b\x42ookManager\x12P\n\x0b\x63reate_book\x12).book_manager_by_option.CreateBookRequest\x1a\x16.google.protobuf.Empty\x12P\n\x0b\x64\x65lete_book\x12).book_manager_by_option.DeleteBookRequest\x1a\x16.google.protobuf.Empty\x12\x90\x01\n\x08get_book\x12&.book_manager_by_option.GetBookRequest\x1a%.book_manager_by_option.GetBookResult\"5\x8a\xd3\xe4\x93\x02/\"\x0b\n\t/book/get\xda\x01\x1f\n\x1dnot_use_field1,not_use_field2\x12\x8c\x01\n\rget_book_list\x12*.book_manager_by_option.GetBookListRequest\x1a).book_manager_by_option.GetBookListResult\"$\x8a\xd3\xe4\x93\x02\x1e\"\x10\n\x0e/book/get-list\xe2\x01\t\x12\x07/resultb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n*example_proto_by_option/book/manager.proto\x12\x16\x62ook_manager_by_option\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x31\x65xample_proto_by_option/common/p2p_validate.proto\x1a(example_proto_by_option/common/api.proto\"n\n\x11\x43reateBookRequest\x12\x0c\n\x04isbn\x18\x01 \x01(\t\x12\x11\n\tbook_name\x18\x02 \x01(\t\x12\x13\n\x0b\x62ook_author\x18\x03 \x01(\t\x12\x11\n\tbook_desc\x18\x04 \x01(\t\x12\x10\n\x08\x62ook_url\x18\x05 \x01(\t\"!\n\x11\x44\x65leteBookRequest\x12\x0c\n\x04isbn\x18\x01 \x01(\t\"p\n\x0eGetBookRequest\x12.\n\x04isbn\x18\x01 \x01(\tB \x8a\x43\x1dr\x1b\x82\x02\x18grpc-gateway@field|Query\x12\x16\n\x0enot_use_field1\x18\x02 \x01(\t\x12\x16\n\x0enot_use_field2\x18\x03 \x01(\t\"\xcc\x01\n\rGetBookResult\x12\x0c\n\x04isbn\x18\x01 \x01(\t\x12\x11\n\tbook_name\x18\x02 \x01(\t\x12\x13\n\x0b\x62ook_author\x18\x03 \x01(\t\x12\x11\n\tbook_desc\x18\x04 \x01(\t\x12\x10\n\x08\x62ook_url\x18\x05 \x01(\t\x12/\n\x0b\x63reate_time\x18\x06 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12/\n\x0bupdate_time\x18\x07 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"s\n\x12GetBookListRequest\x12\x39\n\x10next_create_time\x18\x01 \x01(\x0b\x32\x1a.google.protobuf.TimestampH\x00\x88\x01\x01\x12\r\n\x05limit\x18\x02 \x01(\x05\x42\x13\n\x11_next_create_time\"J\n\x11GetBookListResult\x12\x35\n\x06result\x18\x01 \x03(\x0b\x32%.book_manager_by_option.GetBookResult2\xd3\x03\n\x0b\x42ookManager\x12P\n\x0b\x63reate_book\x12).book_manager_by_option.CreateBookRequest\x1a\x16.google.protobuf.Empty\x12P\n\x0b\x64\x65lete_book\x12).book_manager_by_option.DeleteBookRequest\x1a\x16.google.protobuf.Empty\x12\x90\x01\n\x08get_book\x12&.book_manager_by_option.GetBookRequest\x1a%.book_manager_by_option.GetBookResult\"5\x8a\xd3\xe4\x93\x02/\"\x0b\n\t/book/get\xda\x01\x1f\n\x1dnot_use_field1,not_use_field2\x12\x8c\x01\n\rget_book_list\x12*.book_manager_by_option.GetBookListRequest\x1a).book_manager_by_option.GetBookListResult\"$\x8a\xd3\xe4\x93\x02\x1e\"\x10\n\x0e/book/get-list\xe2\x01\t\x12\x07/resultb\x06proto3')
 
 
 
@@ -75,7 +75,7 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
   _GETBOOKREQUEST.fields_by_name['isbn']._options = None
-  _GETBOOKREQUEST.fields_by_name['isbn']._serialized_options = b'\212C\025r\023\202\002\020pait@field|Query'
+  _GETBOOKREQUEST.fields_by_name['isbn']._serialized_options = b'\212C\035r\033\202\002\030grpc-gateway@field|Query'
   _BOOKMANAGER.methods_by_name['get_book']._options = None
   _BOOKMANAGER.methods_by_name['get_book']._serialized_options = b'\212\323\344\223\002/\"\013\n\t/book/get\332\001\037\n\035not_use_field1,not_use_field2'
   _BOOKMANAGER.methods_by_name['get_book_list']._options = None
@@ -85,13 +85,13 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _DELETEBOOKREQUEST._serialized_start=337
   _DELETEBOOKREQUEST._serialized_end=370
   _GETBOOKREQUEST._serialized_start=372
-  _GETBOOKREQUEST._serialized_end=476
-  _GETBOOKRESULT._serialized_start=479
-  _GETBOOKRESULT._serialized_end=683
-  _GETBOOKLISTREQUEST._serialized_start=685
-  _GETBOOKLISTREQUEST._serialized_end=800
-  _GETBOOKLISTRESULT._serialized_start=802
-  _GETBOOKLISTRESULT._serialized_end=876
-  _BOOKMANAGER._serialized_start=879
-  _BOOKMANAGER._serialized_end=1346
+  _GETBOOKREQUEST._serialized_end=484
+  _GETBOOKRESULT._serialized_start=487
+  _GETBOOKRESULT._serialized_end=691
+  _GETBOOKLISTREQUEST._serialized_start=693
+  _GETBOOKLISTREQUEST._serialized_end=808
+  _GETBOOKLISTRESULT._serialized_start=810
+  _GETBOOKLISTRESULT._serialized_end=884
+  _BOOKMANAGER._serialized_start=887
+  _BOOKMANAGER._serialized_end=1354
 # @@protoc_insertion_point(module_scope)

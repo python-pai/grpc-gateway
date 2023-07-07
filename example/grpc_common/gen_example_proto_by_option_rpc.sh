@@ -15,9 +15,9 @@ target_p='python_example_proto_code'
 source_p='example_proto_by_option'
 # service
 service_list=("book" "user" "common" "other")
-plugin_p='../../pait/grpc/plugin/main.py'
+plugin_p='../../grpc_gateway/protobuf_plugin/main.py'
 
-rm -r "${target_p:?}/${source_p:?}"*
+rm -r "${target_p:?}/${source_p:?}/"*
 mkdir -p "${target_p:?}/${source_p:?}"
 
 pwd

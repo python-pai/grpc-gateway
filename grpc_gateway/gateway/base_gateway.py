@@ -1,16 +1,19 @@
-from typing import Any, Callable, Dict, Optional, Type, TypeVar, Union
+import inspect
+from typing import Any, Callable, Dict, Optional, Set, Type, TypeVar, Union
 
 import grpc
 from google.protobuf.json_format import MessageToDict
 from google.protobuf.message import Message
 from pait.app.any.util import import_func_from_app
 from pait.core import Pait
-from pait.grpc.util import rebuild_dict
 from pait.model import Tag
+
+from grpc_gateway.rebuild_message import rebuild_dict
 
 MessageT = TypeVar("MessageT", bound=Message)
 
 __all__ = ["BaseGrpcGatewayRoute"]
+_grpc_gateway_title_set: Set[str] = set()
 
 
 class BaseGrpcGatewayRoute(object):
@@ -37,7 +40,7 @@ class BaseGrpcGatewayRoute(object):
         """
         :param app: Instance object of the web framework
         :param parse_msg_desc: The way to parse protobuf message, see the specific usage method：
-            https://github.com/so1n/protobuf_to_pydantic#22parameter-verification
+            https://github.com/so1n/protobuf_to_pydantic#23parameter-verification
         :param prefix: url prefix
         :param title: Title of gRPC Gateway, if there are multiple gRPC Gateways in the same Stub,
             you need to ensure that the title of each gRPC Gateway is different
@@ -48,6 +51,10 @@ class BaseGrpcGatewayRoute(object):
         :param add_multi_simple_route: A function that registers multiple routes with the app
         :param kwargs: Extended parameters supported by the `add multi simple route` function of different frameworks
         """
+        if title in _grpc_gateway_title_set:
+            raise ValueError(f"grpc gateway title: {title} already exists")
+        _grpc_gateway_title_set.add(title)
+
         self.app: Any = app
         self.prefix: str = prefix
         self.title: str = title
@@ -64,6 +71,12 @@ class BaseGrpcGatewayRoute(object):
         self.make_response: Callable = make_response or self._make_response
         self._tag_dict: Dict[str, Tag] = {}
 
+        # First use inspect to get the function signature of add_multi_simple_route,
+        # and then generate a dictionary containing the function signature of add_multi_simple_route through kwargs
+        self._add_multi_simple_route_kwargs = {
+            k: kwargs[k] for k in inspect.signature(self._add_multi_simple_route).parameters.keys() if k in kwargs
+        }
+
     def get_msg_from_dict(self, msg: Type[MessageT], request_dict: dict) -> MessageT:
         """Convert the Json data to the corresponding grpc Message object"""
         if self.parse_dict:
@@ -73,6 +86,29 @@ class BaseGrpcGatewayRoute(object):
         return request_msg
 
     def msg_from_dict_handle(self, msg: Type[MessageT], request_dict: dict, nested: Optional[list] = None) -> MessageT:
+        """Http Request Dict to gRPC request protobuf Message
+            e.g:
+                message = {
+                    "a": {
+                        "b": {
+                            "column1": 1,
+                            "column2": "demo"
+                        }
+                    }
+                }
+
+                request_dict = {
+                    "column1": 1,
+                    "column2": "demo"
+                }
+
+                If you want to convert request dict to message object, you need to specify nested=["a", "b"]
+
+        :param msg: protobuf Message class
+        :param request_dict: request dict
+        :param nested: If the request dict is nested, you need to specify the column name of the nested dict
+        :return: protobuf Message
+        """
         if nested:
             for column in nested:
                 request_dict = {column: request_dict}
@@ -81,6 +117,37 @@ class BaseGrpcGatewayRoute(object):
     def msg_to_dict_handle(
         self, message: Message, exclude_column_name: Optional[list] = None, nested: Optional[list] = None
     ) -> dict:
+        """
+        gRPC response protobuf Message to HTTP response dict
+            e.g.1:
+                message = {
+                    "a": 1,
+                    "b": 2,
+                    "c": 3
+                } and exclude = ["a", "b"]
+
+                return value is {"c": 3}
+
+            e.g.2:
+                message = {
+                    "a": {
+                        "b": {
+                            "column1": 1,
+                            "column2": "demo"
+                        }
+                    }
+                } and nested = ["a", "b"]
+
+                return value is {
+                    "column1": 1,
+                    "column2": "demo"
+                }
+
+        :param message: gRPC response protobuf Message
+        :param exclude_column_name: Exclude column name
+        :param nested: If the response dict is nested, you need to specify the column name of the nested dict
+        :return: HTTP response dict
+        """
         message_dict = self.msg_to_dict(message)
         if exclude_column_name or nested:
             message_dict = rebuild_dict(

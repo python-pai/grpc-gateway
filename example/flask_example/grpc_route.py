@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 from functools import partial
-from typing import Any
+from typing import Any, Callable, Type
+from uuid import uuid4
 
 import grpc
 from flask import Flask
 from google.protobuf.json_format import MessageToDict  # type: ignore
 from pait.app import set_app_attribute
 from pait.field import Header
-from pait.grpc import GrpcGatewayRoute
 from pydantic import BaseModel
 
 from example.common.json_formant import parse_dict
@@ -16,31 +16,26 @@ from example.common.response_model import gen_response_model_handle
 from example.flask_example.utils import create_app
 from example.grpc_common.python_example_proto_code.example_proto.book import manager_pb2_grpc, social_pb2_grpc
 from example.grpc_common.python_example_proto_code.example_proto.other import other_pb2_grpc
-from example.grpc_common.python_example_proto_code.example_proto.user import user_pb2_grpc
+from example.grpc_common.python_example_proto_code.example_proto.user import user_pb2, user_pb2_grpc
 from example.grpc_common.python_example_proto_code.example_proto_by_option.book import (
     manager_pait_route,
     social_pait_route,
 )
 from example.grpc_common.python_example_proto_code.example_proto_by_option.other import other_pait_route
 from example.grpc_common.python_example_proto_code.example_proto_by_option.user import user_pait_route
+from grpc_gateway.gateway.dynamic_gateway import GrpcGatewayRoute
+from grpc_gateway.inspect import GrpcMethodModel
+from grpc_gateway.types import Message
 
 message_to_dict = partial(MessageToDict, including_default_value_fields=True, preserving_proto_field_name=True)
 
 
 def add_grpc_gateway_route(app: Flask) -> None:
-    """Split out to improve the speed of test cases"""
-    from typing import Callable, Type
-    from uuid import uuid4
-
-    from pait.grpc import GrpcModel, Message
-
-    from example.grpc_common.python_example_proto_code.example_proto.user import user_pb2
-
     def _make_response(resp_dict: dict) -> dict:
         return {"code": 0, "msg": "", "data": resp_dict}
 
     class CustomerGrpcGatewayRoute(GrpcGatewayRoute):
-        def gen_route(self, grpc_model: GrpcModel, request_pydantic_model_class: Type[BaseModel]) -> Callable:
+        def gen_route(self, grpc_model: GrpcMethodModel, request_pydantic_model_class: Type[BaseModel]) -> Callable:
             if grpc_model.grpc_method_url in ("/user.User/login_user", "/user.User/create_user"):
                 return super().gen_route(grpc_model, request_pydantic_model_class)
             elif grpc_model.grpc_method_url.endswith("nested_demo"):
@@ -105,6 +100,7 @@ def add_grpc_gateway_route(app: Flask) -> None:
 
                 return _route
 
+    channel = grpc.intercept_channel(grpc.insecure_channel("0.0.0.0:9000"))
     grpc_gateway_route: CustomerGrpcGatewayRoute = CustomerGrpcGatewayRoute(
         app,
         user_pb2_grpc.UserStub,
@@ -120,7 +116,7 @@ def add_grpc_gateway_route(app: Flask) -> None:
         parse_dict=parse_dict,
         import_name=__name__,
     )
-    channel = grpc.intercept_channel(grpc.insecure_channel("0.0.0.0:9000"))
+    set_app_attribute(app, "grpc_gateway_route", grpc_gateway_route)  # support unittest
     grpc_gateway_route.init_channel(channel)
     user_pait_route.StaticGrpcGatewayRoute(
         app,
@@ -162,9 +158,8 @@ def add_grpc_gateway_route(app: Flask) -> None:
         msg_to_dict=message_to_dict,
         parse_dict=parse_dict,
     )
-    set_app_attribute(app, "grpc_gateway_route", grpc_gateway_route)  # support unittest
 
 
 if __name__ == "__main__":
-    with create_app(__name__) as app:
-        add_grpc_gateway_route(app)
+    with create_app(__name__) as _app:
+        add_grpc_gateway_route(_app)

@@ -20,12 +20,12 @@ class BookManagerStub:
     get_book: grpc.UnaryUnaryMultiCallable[
         example_proto.book.manager_pb2.GetBookRequest,
         example_proto.book.manager_pb2.GetBookResult]
-    """pait: {"url": "/book/get", "request_message": {"exclude_column_name": "not_use_field1,not_use_field2"}}"""
+    """grpc-gateway: {"url": "/book/get", "request_message": {"exclude_column_name": "not_use_field1,not_use_field2"}}"""
 
     get_book_list: grpc.UnaryUnaryMultiCallable[
         example_proto.book.manager_pb2.GetBookListRequest,
         example_proto.book.manager_pb2.GetBookListResult]
-    """pait: {"url": "/book/get-list", "response_message": {"nested": "/result"}}"""
+    """grpc-gateway: {"url": "/book/get-list", "response_message": {"nested": "/result"}}"""
 
 
 class BookManagerServicer(metaclass=abc.ABCMeta):
@@ -46,7 +46,7 @@ class BookManagerServicer(metaclass=abc.ABCMeta):
         request: example_proto.book.manager_pb2.GetBookRequest,
         context: grpc.ServicerContext,
     ) -> example_proto.book.manager_pb2.GetBookResult:
-        """pait: {"url": "/book/get", "request_message": {"exclude_column_name": "not_use_field1,not_use_field2"}}"""
+        """grpc-gateway: {"url": "/book/get", "request_message": {"exclude_column_name": "not_use_field1,not_use_field2"}}"""
         pass
 
     @abc.abstractmethod
@@ -54,7 +54,7 @@ class BookManagerServicer(metaclass=abc.ABCMeta):
         request: example_proto.book.manager_pb2.GetBookListRequest,
         context: grpc.ServicerContext,
     ) -> example_proto.book.manager_pb2.GetBookListResult:
-        """pait: {"url": "/book/get-list", "response_message": {"nested": "/result"}}"""
+        """grpc-gateway: {"url": "/book/get-list", "response_message": {"nested": "/result"}}"""
         pass
 
 

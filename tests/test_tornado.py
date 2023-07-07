@@ -5,11 +5,17 @@ from tornado.testing import AsyncHTTPTestCase
 from tornado.web import Application
 
 from example.tornado_example import grpc_route
+from grpc_gateway.gateway.base_gateway import _grpc_gateway_title_set
+from grpc_gateway.gateway.dynamic_gateway import AsyncGrpcGatewayRoute as GrpcGatewayRoute
 from tests.base_api_test import BaseTest
 from tests.conftest import grpc_request_test, grpc_test_openapi
 
 
 class BaseTestTornado(AsyncHTTPTestCase):
+    def setUp(self) -> None:
+        _grpc_gateway_title_set.clear()
+        return super().setUp()
+
     def get_app(self) -> Application:
         return Application()
 
@@ -185,12 +191,8 @@ class TestTornadoGrpc(BaseTestTornado):
         grpc_test_openapi(self._app, url_prefix="/api/static", option_str="_by_option")
 
     def test_grpc_openapi_by_protobuf_file(self) -> None:
-        from pait.grpc import AsyncGrpcGatewayRoute as GrpcGatewayRoute
-
         self.base_test.grpc_openapi_by_protobuf_file(self._app, GrpcGatewayRoute)
 
     def test_grpc_openapi_by_option(self) -> None:
-        from pait.grpc import AsyncGrpcGatewayRoute as GrpcGatewayRoute
-
         self.setUp()
         self.base_test.grpc_openapi_by_option(self._app, GrpcGatewayRoute)

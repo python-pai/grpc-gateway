@@ -25,7 +25,7 @@ message NestedMessage{
 
 service Other {
   rpc nested_demo (google.protobuf.Empty) returns (NestedMessage) {
-    option (pait.api.http) = {
+    option (grpc_gateway.api.http) = {
       post: { url: "/other/nested-demo"},
       response_message: {nested: "/map_demo/${}/repeated_demo/$[]/$.map_demo/${}/repeated_demo"}
     };

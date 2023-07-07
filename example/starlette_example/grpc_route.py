@@ -7,7 +7,6 @@ import grpc
 from google.protobuf.json_format import MessageToDict  # type: ignore
 from pait.app import set_app_attribute
 from pait.field import Header
-from pait.grpc import AsyncGrpcGatewayRoute as GrpcGatewayRoute
 from pydantic import BaseModel
 from starlette.applications import Starlette
 
@@ -23,6 +22,7 @@ from example.grpc_common.python_example_proto_code.example_proto_by_option.book 
 from example.grpc_common.python_example_proto_code.example_proto_by_option.other import other_pait_route
 from example.grpc_common.python_example_proto_code.example_proto_by_option.user import user_pait_route
 from example.starlette_example.utils import create_app
+from grpc_gateway.gateway.dynamic_gateway import AsyncGrpcGatewayRoute as GrpcGatewayRoute
 
 message_to_dict = partial(MessageToDict, including_default_value_fields=True, preserving_proto_field_name=True)
 
@@ -32,15 +32,15 @@ def add_grpc_gateway_route(app: Starlette) -> None:
     from typing import Callable, Type
     from uuid import uuid4
 
-    from pait.grpc import GrpcModel, Message
-
     from example.grpc_common.python_example_proto_code.example_proto.user import user_pb2
+    from grpc_gateway.inspect import GrpcMethodModel
+    from grpc_gateway.types import Message
 
     def _make_response(resp_dict: dict) -> dict:
         return {"code": 0, "msg": "", "data": resp_dict}
 
     class CustomerGrpcGatewayRoute(GrpcGatewayRoute):
-        def gen_route(self, grpc_model: GrpcModel, request_pydantic_model_class: Type[BaseModel]) -> Callable:
+        def gen_route(self, grpc_model: GrpcMethodModel, request_pydantic_model_class: Type[BaseModel]) -> Callable:
             if grpc_model.grpc_method_url in ("/user.User/login_user", "/user.User/create_user"):
                 return super().gen_route(grpc_model, request_pydantic_model_class)
             elif grpc_model.grpc_method_url.endswith("nested_demo"):

@@ -63,14 +63,14 @@ class BookSocialServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def get_book_like(self, request, context):
-        """pait: {"http_method": "GET", "additional_bindings": {"http_method": "POST", "url": "/book/get-book-like"}}
+        """grpc-gateway: {"http_method": "GET", "additional_bindings": {"http_method": "POST", "url": "/book/get-book-like"}}
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def get_book_like_other(self, request, context):
-        """pait: {"http_method": "POST", "url": "/book/get-book-like-other", "request_message": {"nested": "/nested"}}
+        """grpc-gateway: {"http_method": "POST", "url": "/book/get-book-like-other", "request_message": {"nested": "/nested"}}
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')

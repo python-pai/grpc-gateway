@@ -7,7 +7,7 @@ from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 
 class UserStub(object):
-    """pait: {"group": "user", "tag": [["grpc-user", "grpc_user_service"]]}
+    """grpc-gateway: {"group": "user", "tag": [["grpc-user", "grpc_user_service"]]}
     """
 
     def __init__(self, channel):
@@ -44,42 +44,42 @@ class UserStub(object):
 
 
 class UserServicer(object):
-    """pait: {"group": "user", "tag": [["grpc-user", "grpc_user_service"]]}
+    """grpc-gateway: {"group": "user", "tag": [["grpc-user", "grpc_user_service"]]}
     """
 
     def get_uid_by_token(self, request, context):
         """The interface should not be exposed for external use
-        pait: {"enable": false}
+        grpc-gateway: {"enable": false}
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def logout_user(self, request, context):
-        """pait: {"summary": "User exit from the system", "url": "/user/logout"}
+        """grpc-gateway: {"summary": "User exit from the system", "url": "/user/logout"}
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def login_user(self, request, context):
-        """pait: {"summary": "User login to system", "url": "/user/login"}
+        """grpc-gateway: {"summary": "User login to system", "url": "/user/login"}
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def create_user(self, request, context):
-        """pait: {"tag": [["grpc-user", "grpc_user_service"], ["grpc-user-system", "grpc_user_service"]]}
-        pait: {"summary": "Create users through the system", "url": "/user/create"}
+        """grpc-gateway: {"tag": [["grpc-user", "grpc_user_service"], ["grpc-user-system", "grpc_user_service"]]}
+        grpc-gateway: {"summary": "Create users through the system", "url": "/user/create"}
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def delete_user(self, request, context):
-        """pait: {"url": "/user/delete", "tag": [["grpc-user", "grpc_user_service"], ["grpc-user-system", "grpc_user_service"]]}
-        pait: {"desc": "This interface performs a logical delete, not a physical delete"}
+        """grpc-gateway: {"url": "/user/delete", "tag": [["grpc-user", "grpc_user_service"], ["grpc-user-system", "grpc_user_service"]]}
+        grpc-gateway: {"desc": "This interface performs a logical delete, not a physical delete"}
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -121,7 +121,7 @@ def add_UserServicer_to_server(servicer, server):
 
  # This class is part of an EXPERIMENTAL API.
 class User(object):
-    """pait: {"group": "user", "tag": [["grpc-user", "grpc_user_service"]]}
+    """grpc-gateway: {"group": "user", "tag": [["grpc-user", "grpc_user_service"]]}
     """
 
     @staticmethod

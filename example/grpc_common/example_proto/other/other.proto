@@ -23,7 +23,7 @@ message NestedMessage{
 
 
 service Other {
-  // pait: {"http_method": "POST", "url": "/other/nested-demo"}
-  // pait: {"response_message": {"nested": "/map_demo/${}/repeated_demo/$[]/$.map_demo/${}/repeated_demo"}}
+  // grpc-gateway: {"http_method": "POST", "url": "/other/nested-demo"}
+  // grpc-gateway: {"response_message": {"nested": "/map_demo/${}/repeated_demo/$[]/$.map_demo/${}/repeated_demo"}}
   rpc nested_demo (google.protobuf.Empty) returns (NestedMessage);
 }

@@ -5,7 +5,8 @@ from any_api.openapi import BaseResponseModel
 from google.protobuf.json_format import MessageToDict
 from pait.app import add_multi_simple_route as _add_multi_simple_route
 from pait.core import Pait
-from pait.grpc import BaseGrpcGatewayRoute, GrpcModel
+from grpc_gateway.gateway.base_gateway import BaseGrpcGatewayRoute
+from grpc_gateway.inspect import GrpcMethodModel
 from pait.util import get_real_annotation
 
 
@@ -26,7 +27,7 @@ class BaseStaticGrpcGatewayRoute(BaseGrpcGatewayRoute):
         pait: Optional[Pait] = None,
         make_response: Optional[Callable] = None,
         add_multi_simple_route: Optional[Callable] = None,
-        gen_response_model_handle: Optional[Callable[[GrpcModel], Type[BaseResponseModel]]] = None,
+        gen_response_model_handle: Optional[Callable[[GrpcMethodModel], Type[BaseResponseModel]]] = None,
         **kwargs: Any,
     ):
         """

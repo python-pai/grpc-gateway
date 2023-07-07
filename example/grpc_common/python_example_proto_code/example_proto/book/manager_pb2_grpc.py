@@ -53,14 +53,14 @@ class BookManagerServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def get_book(self, request, context):
-        """pait: {"url": "/book/get", "request_message": {"exclude_column_name": "not_use_field1,not_use_field2"}}
+        """grpc-gateway: {"url": "/book/get", "request_message": {"exclude_column_name": "not_use_field1,not_use_field2"}}
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def get_book_list(self, request, context):
-        """pait: {"url": "/book/get-list", "response_message": {"nested": "/result"}}
+        """grpc-gateway: {"url": "/book/get-list", "response_message": {"nested": "/result"}}
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')

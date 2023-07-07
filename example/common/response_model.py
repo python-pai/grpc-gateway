@@ -2,13 +2,15 @@ from typing import Any, Type
 
 from any_api.openapi import BaseResponseModel
 from google.protobuf.empty_pb2 import Empty  # type: ignore
-from pait.grpc import GrpcModel, rebuild_message_type
 from pait.model import JsonResponseModel
 from protobuf_to_pydantic import msg_to_pydantic_model
 from pydantic import BaseModel, Field
 
+from grpc_gateway.inspect import GrpcMethodModel
+from grpc_gateway.rebuild_message import rebuild_message_type
 
-def gen_response_model_handle(grpc_model: GrpcModel) -> Type[BaseResponseModel]:
+
+def gen_response_model_handle(grpc_model: GrpcMethodModel) -> Type[BaseResponseModel]:
     if grpc_model.response is Empty:
         response_model: Any = dict
     elif grpc_model.grpc_service_option_model.response_message:

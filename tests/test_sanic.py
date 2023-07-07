@@ -13,13 +13,15 @@ from sanic_testing.testing import SanicTestClient
 
 from example.sanic_example import grpc_route
 from example.sanic_example.utils import api_exception
+from grpc_gateway.gateway.base_gateway import _grpc_gateway_title_set
+from grpc_gateway.gateway.dynamic_gateway import AsyncGrpcGatewayRoute as GrpcGatewayRoute
 from tests.base_api_test import BaseTest
 from tests.conftest import grpc_request_test, grpc_test_openapi
 
 
 def get_app() -> Sanic:
     logging.disable()  # don't know where to configure the log, the test environment will be canceled log
-    logging.disable()  # don't know where to configure the log, the test environment will be canceled log
+    _grpc_gateway_title_set.clear()
     app: Sanic = Sanic("test", configure_logging=False)
     app.exception(PaitBaseException, ValidationError, RuntimeError, SanicException)(api_exception)
     app.config.ACCESS_LOG = False
@@ -176,13 +178,9 @@ class TestSanicGrpc:
             grpc_test_openapi(client.app, url_prefix="/api/static", option_str="_by_option")
 
     def test_grpc_openapi_by_protobuf_file(self) -> None:
-        from pait.grpc import AsyncGrpcGatewayRoute as GrpcGatewayRoute
-
         with base_test_ctx() as base_test:
             base_test.grpc_openapi_by_protobuf_file(base_test.client.app, GrpcGatewayRoute)
 
     def test_grpc_openapi_by_option(self) -> None:
-        from pait.grpc import AsyncGrpcGatewayRoute as GrpcGatewayRoute
-
         with base_test_ctx() as base_test:
             base_test.grpc_openapi_by_option(base_test.client.app, GrpcGatewayRoute)

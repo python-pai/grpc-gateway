@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package pait.api;
+package grpc_gateway.api;
 import "google/protobuf/descriptor.proto";
 
 message ApiRule {

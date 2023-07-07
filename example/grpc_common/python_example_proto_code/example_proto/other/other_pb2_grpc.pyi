@@ -12,8 +12,8 @@ class OtherStub:
     nested_demo: grpc.UnaryUnaryMultiCallable[
         google.protobuf.empty_pb2.Empty,
         example_proto.other.other_pb2.NestedMessage]
-    """pait: {"http_method": "POST", "url": "/other/nested-demo"}
-    pait: {"response_message": {"nested": "/map_demo/${}/repeated_demo/$[]/$.map_demo/${}/repeated_demo"}}
+    """grpc-gateway: {"http_method": "POST", "url": "/other/nested-demo"}
+    grpc-gateway: {"response_message": {"nested": "/map_demo/${}/repeated_demo/$[]/$.map_demo/${}/repeated_demo"}}
     """
 
 
@@ -23,8 +23,8 @@ class OtherServicer(metaclass=abc.ABCMeta):
         request: google.protobuf.empty_pb2.Empty,
         context: grpc.ServicerContext,
     ) -> example_proto.other.other_pb2.NestedMessage:
-        """pait: {"http_method": "POST", "url": "/other/nested-demo"}
-        pait: {"response_message": {"nested": "/map_demo/${}/repeated_demo/$[]/$.map_demo/${}/repeated_demo"}}
+        """grpc-gateway: {"http_method": "POST", "url": "/other/nested-demo"}
+        grpc-gateway: {"response_message": {"nested": "/map_demo/${}/repeated_demo/$[]/$.map_demo/${}/repeated_demo"}}
         """
         pass
 

@@ -5,15 +5,15 @@ from typing import TYPE_CHECKING, List
 
 from jinja2 import Template
 from mypy_protobuf.main import Descriptors
-from pait.__version__ import __version__
-from pait.grpc import GrpcServiceOptionModel, get_grpc_service_model_from_option_message
-from pait.grpc.plugin.model import GrpcModel
+from grpc_gateway.__version__ import __version__
+from grpc_gateway.model import GrpcServiceOptionModel, get_grpc_service_model_from_option_message
+from grpc_gateway.protobuf_plugin.model import GrpcTemplateVarModel
 from protobuf_to_pydantic.gen_code import BaseP2C
 from protobuf_to_pydantic.gen_model import DescTemplate
 from protobuf_to_pydantic.grpc_types import FileDescriptorProto
 
 if TYPE_CHECKING:
-    from pait.grpc.plugin.config import ConfigModel
+    from grpc_gateway.protobuf_plugin.config import ConfigModel
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -21,7 +21,7 @@ logger: logging.Logger = logging.getLogger(__name__)
 class FileDescriptorProtoToRouteCode(BaseP2C):
     head_content: str = (
         "# This is an automatically generated file, please do not change\n"
-        f"# gen by pait[{__version__}](https://github.com/so1n/pait)\n"
+        f"# gen by grpc-gateway[{__version__}](https://github.com/python-pai/grpc-gateway)\n"
     )
     indent: int = 4
     attr_prefix: str = "gateway_attr"
@@ -106,20 +106,20 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
 
         self._parse_field_descriptor()
 
-    def get_route_code(self, grpc_model: GrpcModel, template_dict: dict) -> str:
+    def get_route_code(self, grpc_model: GrpcTemplateVarModel, template_dict: dict) -> str:
         """Can customize the template that generates the route according to different methods"""
         return Template(self.route_func_jinja_template_str, trim_blocks=True, lstrip_blocks=True).render(
             **template_dict
         )
 
-    def get_response_code(self, grpc_model: GrpcModel, template_dict: dict) -> str:
+    def get_response_code(self, grpc_model: GrpcTemplateVarModel, template_dict: dict) -> str:
         """Can customize the template that generates the response according to different methods"""
         response_class_str: str = Template(
             self.response_jinja_template_str, trim_blocks=True, lstrip_blocks=True
         ).render(**template_dict)
         return response_class_str
 
-    def get_pait_code(self, tab_str: str, pait_name: str, grpc_model: GrpcModel) -> str:
+    def get_pait_code(self, tab_str: str, pait_name: str, grpc_model: GrpcTemplateVarModel) -> str:
         # can't change tab_str, pait_name value
         tag_str_list: List[str] = [
             f'Tag("{tag}", "{desc}")'
@@ -153,7 +153,7 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
         self._add_import_code("pait.app.any", "set_app_attribute")
         self._add_import_code("pait.core", "Pait")
         self._add_import_code("pait.g", "pait_context")
-        self._add_import_code("pait.grpc.plugin.gateway", "BaseStaticGrpcGatewayRoute")
+        self._add_import_code("grpc_gateway.protobuf_plugin.gateway", "BaseStaticGrpcGatewayRoute")
         self._add_import_code("pait.model.tag", "Tag")
         self._add_import_code("pait.model.response", "BaseResponseModel")
         self._add_import_code("pait.model.response", "JsonResponseModel")
@@ -171,7 +171,7 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
         # Extract information in preparation for code generation #
         ##########################################################
         service_name_list: list = []
-        grpc_model_list: List[GrpcModel] = []
+        grpc_model_list: List[GrpcTemplateVarModel] = []
         for service in self._fd.service:
             for method in service.method:
                 func_name: str = f"{method.name}_route"
@@ -209,7 +209,7 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
                         nested_str = self._get_value_code(grpc_service_option_model.request_message.nested, sort=False)
 
                         # self._add_import_code(f".{model_module_name}", input_type_name)
-                        self._add_import_code("pait.grpc", "rebuild_message_type")
+                        self._add_import_code("grpc_gateway.rebuild_message", "rebuild_message_type")
                         request_message_model_name = (
                             f"{input_type_name}{''.join([i.title() for i in func_name.split('_')])}"
                         )
@@ -233,7 +233,7 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
                         or grpc_service_option_model.response_message.nested
                     ) and output_type_name != "Empty":
                         # self._add_import_code(f".{model_module_name}", output_type_name)
-                        self._add_import_code("pait.grpc", "rebuild_message_type")
+                        self._add_import_code("grpc_gateway.rebuild_message", "rebuild_message_type")
                         exclude_column_name_str = self._get_value_code(
                             grpc_service_option_model.response_message.exclude_column_name, sort=False
                         )
@@ -257,7 +257,7 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
                             )
                         )
                     grpc_model_list.append(
-                        GrpcModel(
+                        GrpcTemplateVarModel(
                             index=model_index,
                             attr_prefix=self.attr_prefix,
                             filename=self._fd.name,
@@ -366,7 +366,7 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
         class_stub_str += (
             f"{tab_str * 1}stub_str_list: List[str] = {self._get_value_code(stub_service_name_list, sort=False)}\n"
         )
-        class_str: str = (
+        gateway_class_str: str = (
             f"class {self.gateway_name}(BaseStaticGrpcGatewayRoute):\n"
             f"{class_stub_str}\n"
             f"{tab_str * 1}def gen_route(self) -> None:\n"
@@ -382,9 +382,9 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
             f"{tab_str * 3}** self.kwargs\n"
             f"{tab_str * 2})\n"
         )
-        logger.debug(class_str)
+        logger.debug(gateway_class_str)
         for response_code_str in response_code_str_list:
             self._content_deque.append(response_code_str)
         for route_code_str in route_code_str_list:
             self._content_deque.append(route_code_str)
-        self._content_deque.append(class_str)
+        self._content_deque.append(gateway_class_str)

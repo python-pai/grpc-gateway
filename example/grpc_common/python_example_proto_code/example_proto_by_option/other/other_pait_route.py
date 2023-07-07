@@ -1,25 +1,34 @@
 # This is an automatically generated file, please do not change
-# gen by pait[0.0.0](https://github.com/so1n/pait)
-import asyncio
-from typing import Any, Callable, List, Type
-from uuid import uuid4
-
+# gen by grpc-gateway[0.0.0](https://github.com/python-pai/grpc-gateway)
+from . import other_p2p
+from . import other_pb2
+from . import other_pb2_grpc
+from ..user import user_pb2
+from ..user import user_pb2_grpc
+from .other_p2p import NestedMessage as NestedMessageNestedDemoRoute
 from google.protobuf.empty_pb2 import Empty  # type: ignore
-from pydantic import BaseModel, Field
-
+from grpc_gateway.protobuf_plugin.gateway import BaseStaticGrpcGatewayRoute
+from grpc_gateway.rebuild_message import rebuild_message_type
 from pait import field
-from pait.app.any import SimpleRoute, set_app_attribute
+from pait.app.any import SimpleRoute
+from pait.app.any import set_app_attribute
 from pait.core import Pait
 from pait.field import Header
 from pait.g import pait_context
-from pait.grpc import rebuild_message_type
-from pait.grpc.plugin.gateway import BaseStaticGrpcGatewayRoute
-from pait.model.response import BaseResponseModel, JsonResponseModel
+from pait.model.response import BaseResponseModel
+from pait.model.response import JsonResponseModel
 from pait.model.tag import Tag
+from pydantic import BaseModel
+from pydantic import Field
+from typing import Any
+from typing import Callable
+from typing import List
+from typing import Type
+from uuid import uuid4
+import asyncio
 
-from ..user import user_pb2, user_pb2_grpc
-from . import other_p2p, other_pb2, other_pb2_grpc
-from .other_p2p import NestedMessage as NestedMessageNestedDemoRoute
+
+
 
 NestedMessageNestedDemoRoute = rebuild_message_type(  # type: ignore[misc]
     NestedMessageNestedDemoRoute,
@@ -27,6 +36,7 @@ NestedMessageNestedDemoRoute = rebuild_message_type(  # type: ignore[misc]
     exclude_column_name=[],
     nested=["map_demo", "${}", "repeated_demo", "$[]", "$.map_demo", "${}", "repeated_demo"],
 )
+
 
 
 class OtherSocialByOptionNestedMessageJsonResponseModel(JsonResponseModel):
@@ -37,9 +47,11 @@ class OtherSocialByOptionNestedMessageJsonResponseModel(JsonResponseModel):
 
     name: str = "other_social_by_option_NestedMessageNestedDemoRoute"
     description: str = (
-        NestedMessageNestedDemoRoute.__doc__ or "" if NestedMessageNestedDemoRoute.__module__ != "builtins" else ""
+        NestedMessageNestedDemoRoute.__doc__ or ""
+        if NestedMessageNestedDemoRoute.__module__ != "builtins" else ""
     )
     response_data: Type[BaseModel] = CustomerJsonResponseRespModel
+
 
 
 async def async_nested_demo_route(
@@ -64,10 +76,15 @@ async def async_nested_demo_route(
     )
     if not result.uid:
         raise RuntimeError("Not found user by token:" + token)
-    grpc_msg: other_pb2.NestedMessage = await stub.nested_demo(request_msg, metadata=[("req_id", req_id)])
-    return gateway.msg_to_dict_handle(
-        grpc_msg, [], ["map_demo", "${}", "repeated_demo", "$[]", "$.map_demo", "${}", "repeated_demo"]
+    grpc_msg: other_pb2.NestedMessage = await stub.nested_demo(
+        request_msg, metadata=[("req_id", req_id)]
     )
+    return gateway.msg_to_dict_handle(
+        grpc_msg,
+        [],
+        ["map_demo", "${}", "repeated_demo", "$[]", "$.map_demo", "${}", "repeated_demo"]
+    )
+
 
 
 def nested_demo_route(
@@ -88,7 +105,9 @@ def nested_demo_route(
         raise RuntimeError("Not found user by token:" + token)
     grpc_msg: other_pb2.NestedMessage = stub.nested_demo(request_msg, metadata=[("req_id", req_id)])
     return gateway.msg_to_dict_handle(
-        grpc_msg, [], ["map_demo", "${}", "repeated_demo", "$[]", "$.map_demo", "${}", "repeated_demo"]
+        grpc_msg,
+        [],
+        ["map_demo", "${}", "repeated_demo", "$[]", "$.map_demo", "${}", "repeated_demo"]
     )
 
 
@@ -104,14 +123,11 @@ class StaticGrpcGatewayRoute(BaseStaticGrpcGatewayRoute):
             author=(),
             name="",
             group="",
-            append_tag=(
-                Tag("grpc-other_social_by_option-Other", ""),
-                self._grpc_tag,
-            ),
+            append_tag=(Tag("grpc-other_social_by_option-Other", ""),self._grpc_tag,),
             desc="",
             summary="",
             default_field_class=field.Body,
-            response_model_list=[OtherSocialByOptionNestedMessageJsonResponseModel] + response_model_list,
+            response_model_list=[OtherSocialByOptionNestedMessageJsonResponseModel] + response_model_list ,
         )
         pait_async_nested_demo_route = nested_demo_route_pait(feature_code="0")(async_nested_demo_route)
         pait_nested_demo_route = nested_demo_route_pait(feature_code="0")(nested_demo_route)
@@ -120,9 +136,9 @@ class StaticGrpcGatewayRoute(BaseStaticGrpcGatewayRoute):
             SimpleRoute(
                 url="/other/nested-demo",
                 methods=["POST"],
-                route=pait_async_nested_demo_route if self.is_async else pait_nested_demo_route,
+                route=pait_async_nested_demo_route if self.is_async else pait_nested_demo_route
             ),
             prefix=self.prefix,
             title=self.title,
-            **self.kwargs,
+            ** self.kwargs
         )

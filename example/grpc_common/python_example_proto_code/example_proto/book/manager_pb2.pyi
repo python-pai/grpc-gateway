@@ -55,7 +55,7 @@ class GetBookRequest(google.protobuf.message.Message):
     NOT_USE_FIELD1_FIELD_NUMBER: builtins.int
     NOT_USE_FIELD2_FIELD_NUMBER: builtins.int
     isbn: typing.Text
-    """pait: {"field": "pait@import|pait.field|Query"}"""
+    """grpc-gateway: {"field": "grpc-gateway@import|pait.field|Query"}"""
 
     not_use_field1: typing.Text
     not_use_field2: typing.Text

@@ -17,7 +17,7 @@ packages = [{include = "grpc_gateway"}]
 
 [tool.poetry.dependencies]
 python = "^3.7"
-pait = "1.0.0a6"
+pait = "1.0.0a7"
 protobuf-to-pydantic = "^0.1.7.3"
 jinja2 = {version = ">=2.0.0", optional = true}
 
@@ -91,10 +91,10 @@ testpaths = ["tests"]
 
 [tool.coverage.run]
 branch = true
-source = ["pait"]
+source = ["grpc_gateway"]
 omit = [
-    "pait/grpc/plugin/*",
-    "pait/grpc/proto/*",
+    "grpc_gateway/protobuf_plugin/*",
+    "grpc_gateway/proto/*",
 ]
 
 [tool.coverage.report]

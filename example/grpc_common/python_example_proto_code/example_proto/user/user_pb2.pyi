@@ -34,16 +34,16 @@ class CreateUserRequest(google.protobuf.message.Message):
     PASSWORD_FIELD_NUMBER: builtins.int
     SEX_FIELD_NUMBER: builtins.int
     uid: typing.Text
-    """pait: {"miss_default": true, "example": "10086", "title": "UID", "description": "user union id"}"""
+    """grpc-gateway: {"miss_default": true, "example": "10086", "title": "UID", "description": "user union id"}"""
 
     user_name: typing.Text
-    """pait: {"description": "user name"}
-    pait: {"default": "", "min_length": 1, "max_length": "10", "example": "so1n"}
+    """grpc-gateway: {"description": "user name"}
+    grpc-gateway: {"default": "", "min_length": 1, "max_length": "10", "example": "so1n"}
     """
 
     password: typing.Text
-    """pait: {"description": "user password"}
-    pait: {"alias": "pw", "min_length": 6, "max_length": 18, "example": "123456"}
+    """grpc-gateway: {"description": "user password"}
+    grpc-gateway: {"alias": "pw", "min_length": 6, "max_length": 18, "example": "123456"}
     """
 
     sex: global___SexType.ValueType
@@ -90,15 +90,15 @@ class LoginUserResult(google.protobuf.message.Message):
     USER_NAME_FIELD_NUMBER: builtins.int
     TOKEN_FIELD_NUMBER: builtins.int
     uid: typing.Text
-    """pait: {"example": "10086", "title": "UID", "description": "user union id"}"""
+    """grpc-gateway: {"example": "10086", "title": "UID", "description": "user union id"}"""
 
     user_name: typing.Text
-    """pait: {"description": "user name"}
-    pait: {"default": "", "min_length": 1, "max_length": "10", "example": "so1n"}
+    """grpc-gateway: {"description": "user name"}
+    grpc-gateway: {"default": "", "min_length": 1, "max_length": "10", "example": "so1n"}
     """
 
     token: typing.Text
-    """pait: {"description": "user token"}"""
+    """grpc-gateway: {"description": "user token"}"""
 
     def __init__(self,
         *,
@@ -116,7 +116,7 @@ class LogoutUserRequest(google.protobuf.message.Message):
     TOKEN_FIELD_NUMBER: builtins.int
     uid: typing.Text
     token: typing.Text
-    """pait: {"enable": false}"""
+    """grpc-gateway: {"enable": false}"""
 
     def __init__(self,
         *,

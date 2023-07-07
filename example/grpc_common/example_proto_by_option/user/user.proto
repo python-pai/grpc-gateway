@@ -74,28 +74,28 @@ message GetUidByTokenResult {
 service User {
   // The interface should not be exposed for external use
   rpc get_uid_by_token (GetUidByTokenRequest) returns (GetUidByTokenResult) {
-    option (pait.api.http) = {
+    option (grpc_gateway.api.http) = {
       not_enable: true,
       group: "user",
       tag: [{name: "grpc-user", desc: "grpc_user_service"}]
     };
   };
   rpc logout_user (LogoutUserRequest) returns (google.protobuf.Empty) {
-    option (pait.api.http) = {
+    option (grpc_gateway.api.http) = {
       summary: "User exit from the system",
       any: {url: "/user/logout"},
       tag: [{name: "grpc-user", desc: "grpc_user_service"}]
     };
   };
   rpc login_user(LoginUserRequest) returns (LoginUserResult) {
-    option (pait.api.http) = {
+    option (grpc_gateway.api.http) = {
       summary: "User login to system",
       any: {url: "/user/login"},
       tag: [{name: "grpc-user", desc: "grpc_user_service"}]
     };
   };
   rpc create_user(CreateUserRequest) returns (google.protobuf.Empty) {
-    option (pait.api.http) = {
+    option (grpc_gateway.api.http) = {
       summary: "Create users through the system",
       any: {url: "/user/create"},
       tag: [
@@ -105,7 +105,7 @@ service User {
     };
   };
   rpc delete_user(DeleteUserRequest) returns (google.protobuf.Empty) {
-    option (pait.api.http) = {
+    option (grpc_gateway.api.http) = {
       desc: "This interface performs a logical delete, not a physical delete",
       any: {url: "/user/delete"},
       tag: [

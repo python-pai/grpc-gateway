@@ -4,7 +4,6 @@ from typing import Any, Callable, List, Optional
 
 import grpc
 from google.protobuf.json_format import ParseDict
-from pait.grpc import ParseStub
 
 from example.grpc_common.python_example_proto_code.example_proto.book import manager_pb2_grpc as manager_service
 from example.grpc_common.python_example_proto_code.example_proto.book import social_pb2_grpc as social_service
@@ -22,6 +21,7 @@ from example.grpc_common.python_example_proto_code.example_proto_by_option.other
 from example.grpc_common.python_example_proto_code.example_proto_by_option.user import (
     user_pb2_grpc as user_by_option_service,
 )
+from grpc_gateway.inspect import ParseStub
 
 logger: logging.Logger = logging.getLogger()
 
