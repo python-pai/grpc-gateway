@@ -17,7 +17,7 @@ packages = [{include = "grpc_gateway"}]
 
 [tool.poetry.dependencies]
 python = "^3.7"
-pait = "1.0.0a7"
+pait = "1.0.0a8"
 protobuf-to-pydantic = "^0.1.7.3"
 jinja2 = {version = ">=2.0.0", optional = true}
 
@@ -44,10 +44,11 @@ sanic = "21.3.4"
 sanic-testing = "0.3.0"
 tornado = "6.1"
 uvicorn = "0.13.4"
-starlette = "0.14.1"
+starlette = "0.14.2"
 markupsafe = "2.0.1"
 itsdangerous = "1.1.0"
 protobuf = "3.20.1"
+fastapi = "0.65.0"
 
 
 [tool.poetry.scripts]
