@@ -186,7 +186,7 @@ class DynamicGrpcGatewayRoute(BaseGrpcGatewayRoute):
         _route = self.gen_route(grpc_model, request_pydantic_model_class)
 
         # change route func name and qualname
-        _route.__name__ = self.title + grpc_model.alias_grpc_method_url.replace(".", "_")
+        _route.__name__ = (self.title + "." + grpc_model.alias_grpc_method_url).replace(".", "_").replace(" ", "_")
         _route.__qualname__ = _route.__qualname__.replace("._route", "." + _route.__name__)
 
         # Since the route is generated dynamically, pait will not be able to resolve the type of

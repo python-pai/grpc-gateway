@@ -1,11 +1,11 @@
 from contextlib import contextmanager
 from typing import Iterator
 
+from fastapi import FastAPI
 from pait.app.starlette import Pait
 from pait.exceptions import PaitBaseException, PaitBaseParamException, TipException
 from pait.model import PaitStatus
 from pydantic import ValidationError
-from starlette.applications import Starlette
 from starlette.exceptions import HTTPException
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, JSONResponse, Response
@@ -31,16 +31,15 @@ def api_exception(request: Request, exc: Exception) -> Response:
 
 
 @contextmanager
-def create_app() -> Iterator[Starlette]:
+def create_app() -> Iterator[FastAPI]:
     import uvicorn
     from pait.extra.config import apply_block_http_method_set
     from pait.g import config
     from pait.openapi.doc_route import add_doc_route
-    from starlette.applications import Starlette
 
     config.init_config(apply_func_list=[apply_block_http_method_set({"HEAD", "OPTIONS"})])
 
-    app: Starlette = Starlette()
+    app: FastAPI = FastAPI()
     yield app
     app.add_exception_handler(PaitBaseException, api_exception)
     app.add_exception_handler(ValidationError, api_exception)

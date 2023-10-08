@@ -17,7 +17,7 @@ packages = [{include = "grpc_gateway"}]
 
 [tool.poetry.dependencies]
 python = "^3.7"
-pait = "1.0.0a8"
+pait = "1.0.0a10"
 protobuf-to-pydantic = "^0.1.7.3"
 jinja2 = {version = ">=2.0.0", optional = true}
 

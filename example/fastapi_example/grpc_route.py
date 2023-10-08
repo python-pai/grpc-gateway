@@ -13,6 +13,7 @@ from pydantic import BaseModel
 
 from example.common.json_formant import parse_dict
 from example.common.response_model import gen_response_model_handle
+from example.fastapi_example.utils import create_app
 from example.grpc_common.python_example_proto_code.example_proto.book import manager_pb2_grpc, social_pb2_grpc
 from example.grpc_common.python_example_proto_code.example_proto.other import other_pb2_grpc
 from example.grpc_common.python_example_proto_code.example_proto.user import user_pb2_grpc
@@ -22,7 +23,6 @@ from example.grpc_common.python_example_proto_code.example_proto_by_option.book 
 )
 from example.grpc_common.python_example_proto_code.example_proto_by_option.other import other_pait_route
 from example.grpc_common.python_example_proto_code.example_proto_by_option.user import user_pait_route
-from example.starlette_example.utils import create_app
 from grpc_gateway.dynamic_gateway.gateway import AsyncGrpcGatewayRoute as GrpcGatewayRoute
 
 message_to_dict = partial(MessageToDict, including_default_value_fields=True, preserving_proto_field_name=True)
