@@ -3,7 +3,7 @@ from typing import Iterator
 
 from pait.app.tornado import Pait
 from pait.exceptions import PaitBaseException, PaitBaseParamException, TipException
-from pait.model import PaitStatus
+from pait.model.status import PaitStatus
 from pydantic import ValidationError
 from tornado.routing import _RuleList
 from tornado.web import AnyMatches, Application, HTTPError, RequestHandler, Rule, _ApplicationRouter

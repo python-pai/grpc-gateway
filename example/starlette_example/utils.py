@@ -3,7 +3,7 @@ from typing import Iterator
 
 from pait.app.starlette import Pait
 from pait.exceptions import PaitBaseException, PaitBaseParamException, TipException
-from pait.model import PaitStatus
+from pait.model.status import PaitStatus
 from pydantic import ValidationError
 from starlette.applications import Starlette
 from starlette.exceptions import HTTPException

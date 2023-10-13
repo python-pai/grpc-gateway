@@ -4,7 +4,7 @@ from typing import Iterator
 from fastapi import FastAPI
 from pait.app.starlette import Pait
 from pait.exceptions import PaitBaseException, PaitBaseParamException, TipException
-from pait.model import PaitStatus
+from pait.model.status import PaitStatus
 from pydantic import ValidationError
 from starlette.exceptions import HTTPException
 from starlette.requests import Request

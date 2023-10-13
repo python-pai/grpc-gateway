@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional, Type
 from google.protobuf.descriptor import MethodDescriptor, ServiceDescriptor  # type: ignore
 from google.protobuf.json_format import MessageToDict  # type: ignore
 
-from grpc_gateway.types import Message
+from grpc_gateway.protobuf_types import Message
 
 __all__ = [
     "GrpcMethodModel",

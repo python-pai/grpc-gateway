@@ -8,7 +8,8 @@ from google.protobuf.empty_pb2 import Empty  # type: ignore
 from pait.app.base.simple_route import SimpleRoute
 from pait.core import Pait
 from pait.field import BaseField, Body, Query
-from pait.model import BaseResponseModel, JsonResponseModel, Tag
+from pait.model.response import BaseResponseModel, JsonResponseModel
+from pait.model.tag import Tag
 from protobuf_to_pydantic import msg_to_pydantic_model
 from pydantic import BaseModel
 

@@ -35,7 +35,7 @@ def add_grpc_gateway_route(app: Application) -> None:
 
     from example.grpc_common.python_example_proto_code.example_proto.user import user_pb2
     from grpc_gateway.dynamic_gateway.inspect import GrpcMethodModel
-    from grpc_gateway.types import Message
+    from grpc_gateway.protobuf_types import Message
 
     def _tornado_make_response(resp_dict: dict) -> dict:
         return {"code": 0, "msg": "", "data": resp_dict}

@@ -6,7 +6,7 @@ from google.protobuf.json_format import MessageToDict
 from google.protobuf.message import Message
 from pait.app.any.util import import_func_from_app
 from pait.core import Pait
-from pait.model import Tag
+from pait.model.tag import Tag
 
 from grpc_gateway.rebuild_message import rebuild_dict
 

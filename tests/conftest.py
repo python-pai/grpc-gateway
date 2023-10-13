@@ -215,7 +215,8 @@ def grpc_test_openapi(app: Any, url_prefix: str = "/api", option_str: str = "") 
                 "$ref"
             ]
             response_schema: dict = pait_openapi.dict["components"]["schemas"][response_schema_key.split("/")[-1]]
-            assert response_schema["title"].endswith("LoginUserResult")
+            assert response_schema["properties"]["data"]["allOf"][0]["$ref"].endswith("LoginUserResult")
+            # assert response_schema["title"].endswith("LoginUserResult")
             for column in ["code", "msg", "data"]:
                 assert column in response_schema["properties"]
         elif url == f"{url_prefix}/user/logout":

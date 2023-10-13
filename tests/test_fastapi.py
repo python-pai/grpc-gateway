@@ -1,22 +1,32 @@
 import asyncio
 import json
+import sys
 from contextlib import contextmanager
 from queue import Queue
 from typing import Generator, Tuple
 
 import pytest
-from fastapi import FastAPI
-from fastapi.testclient import TestClient
 from pait.app.starlette import TestHelper as _TestHelper
 from pait.exceptions import PaitBaseException
 from pydantic import ValidationError
 
-from example.fastapi_example import grpc_route
-from example.fastapi_example.utils import api_exception
 from grpc_gateway.base_gateway import _grpc_gateway_title_set
 from grpc_gateway.dynamic_gateway.gateway import AsyncGrpcGatewayRoute as GrpcGatewayRoute
 from tests.base_api_test import BaseTest
 from tests.conftest import grpc_request_test, grpc_test_openapi
+
+try:
+    # Do not run fastapi directly in a dev environment, but run it in tox(with fastapi) environment.
+    # Because it has too many dependencies, there will be test environment dependency conflicts
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient
+
+    from example.fastapi_example import grpc_route
+    from example.fastapi_example.utils import api_exception
+except ImportError as e:
+    if "tox" in sys.executable:
+        raise e
+    pytest.skip("not install fastapi", allow_module_level=True)
 
 
 def get_app() -> FastAPI:

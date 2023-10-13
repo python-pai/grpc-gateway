@@ -3,7 +3,7 @@ from typing import Iterator
 
 from pait.app.sanic import Pait
 from pait.exceptions import PaitBaseException, PaitBaseParamException, TipException
-from pait.model import PaitStatus
+from pait.model.status import PaitStatus
 from pydantic import ValidationError
 from sanic import Request, Sanic, response
 from sanic.exceptions import SanicException

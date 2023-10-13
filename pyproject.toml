@@ -17,8 +17,8 @@ packages = [{include = "grpc_gateway"}]
 
 [tool.poetry.dependencies]
 python = "^3.7"
-pait = "1.0.0a10"
-protobuf-to-pydantic = "^0.1.7.3"
+pait = "1.0.0a13"
+protobuf-to-pydantic = "^0.2.0.2"
 jinja2 = {version = ">=2.0.0", optional = true}
 
 [tool.poetry.extras]
@@ -48,7 +48,9 @@ starlette = "0.14.2"
 markupsafe = "2.0.1"
 itsdangerous = "1.1.0"
 protobuf = "3.20.1"
-fastapi = "0.65.0"
+# Do not run fastapi directly in a dev environment, but run it in tox(with fastapi) environment.
+# Because it has too many dependencies, there will be test environment dependency conflicts
+# fastapi = "0.65.0"
 
 
 [tool.poetry.scripts]

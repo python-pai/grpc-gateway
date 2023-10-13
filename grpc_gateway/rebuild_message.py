@@ -1,80 +1,178 @@
 import inspect
 from typing import Any, Dict, List, Optional, Tuple, Type, _GenericAlias  # type: ignore[attr-defined]
 
+from pait import _pydanitc_adapter
 from pait.util import create_pydantic_model
 from pydantic import BaseModel
 
 __all__ = ["rebuild_message_type", "rebuild_dict"]
 
 
-def rebuild_message_type(
-    raw_type: Type,
-    route_func_name: str,
-    exclude_column_name: Optional[list] = None,
-    nested: Optional[list] = None,
-) -> Type:
-    if not exclude_column_name and not nested:
+# flake8: noqa: C901
+if _pydanitc_adapter.is_v1:
+
+    def rebuild_message_type(
+        raw_type: Type,
+        route_func_name: str,
+        exclude_column_name: Optional[list] = None,
+        nested: Optional[list] = None,
+    ) -> Type:
+        if not exclude_column_name and not nested:
+            return raw_type
+        if exclude_column_name:
+            if not issubclass(raw_type, BaseModel):
+                raise TypeError("The value must be Base Model")
+            raw_pydantic_model: Type[BaseModel] = raw_type
+            annotation_dict: Dict[str, Tuple[Type, Any]] = {}
+            pydantic_validators: Dict[str, Any] = {}
+            for column_name, model_field in _pydanitc_adapter.model_fields(raw_pydantic_model).items():
+                if column_name in exclude_column_name:
+                    continue
+                annotation_dict[column_name] = (model_field.type_, model_field.field_info)
+                for validators in raw_pydantic_model.__validators__.get(column_name, []):  # type: ignore
+                    pydantic_validators[validators.func.__name__] = validators
+
+            return create_pydantic_model(  # type: ignore[return-value]
+                annotation_dict=annotation_dict,
+                class_name=(
+                    raw_pydantic_model.__name__ + f"{''.join([i.title() for i in route_func_name.split('_')])}Rebuild"
+                ),
+                pydantic_base=raw_pydantic_model.__base__,  # type: ignore
+                pydantic_module=raw_pydantic_model.__module__,
+            )
+        elif nested:
+            for index, column in enumerate(nested):
+                if column == "$[]":
+                    if not isinstance(raw_type, _GenericAlias) and not getattr(raw_type, "_name", "") == "List":
+                        raise ValueError(  # pragma: no cover
+                            f"Parse `{column}({nested})` is error: {raw_type} is not a List. "
+                        )
+                    raw_type = List[  # type: ignore[misc,index]
+                        rebuild_message_type(raw_type.__args__[0], route_func_name, nested=nested[1 + index :])
+                    ]
+                    break
+                elif column == "${}":
+                    if not isinstance(raw_type, _GenericAlias) and not getattr(raw_type, "_name", "") == "Dict":
+                        raise ValueError(  # pragma: no cover
+                            f"Parse `{column}({nested})` is error: {raw_type} is not a Dict. "
+                        )
+                    raw_type = Dict[  # type: ignore[misc,index]
+                        raw_type.__args__[0],  # type: ignore[name-defined]
+                        rebuild_message_type(raw_type.__args__[1], route_func_name, nested=nested[1 + index :]),
+                    ]
+                    break
+                elif column.startswith("$."):
+                    if not issubclass(raw_type, BaseModel):
+                        raise ValueError(  # pragma: no cover
+                            f"Parse `{column}({nested})` is error: {raw_type} is not a pydantic.BaseModel. "
+                        )
+                    key = column[2:]
+                    fields = _pydanitc_adapter.model_fields(raw_type)
+
+                    fields[key].outer_type_ = rebuild_message_type(
+                        fields[key].outer_type_, route_func_name, nested=nested[1 + index :]
+                    )
+
+                    break
+                else:
+                    if not issubclass(raw_type, BaseModel):
+                        raise ValueError(  # pragma: no cover
+                            f"Parse `{column}({nested})` is error: {raw_type} is not a pydantic.BaseModel. "
+                        )
+                    raw_type = _pydanitc_adapter.model_fields(raw_type)[column].outer_type_
+
+                if not (inspect.isclass(raw_type) and issubclass(raw_type, BaseModel)):
+                    continue
         return raw_type
-    if exclude_column_name:
-        if not issubclass(raw_type, BaseModel):
-            raise TypeError("The value must be Base Model")
-        raw_pydantic_model: Type[BaseModel] = raw_type
-        annotation_dict: Dict[str, Tuple[Type, Any]] = {}
-        pydantic_validators: Dict[str, classmethod] = {}
-        for column_name, model_field in raw_pydantic_model.__fields__.items():
-            if column_name in exclude_column_name:
-                continue
-            annotation_dict[column_name] = (model_field.type_, model_field.field_info)
-            for validators in raw_pydantic_model.__validators__.get(column_name, []):  # type: ignore
-                pydantic_validators[validators.func.__name__] = validators
-        return create_pydantic_model(  # type: ignore[return-value]
-            annotation_dict=annotation_dict,
-            class_name=(
-                raw_pydantic_model.__name__ + f"{''.join([i.title() for i in route_func_name.split('_')])}Rebuild"
-            ),
-            pydantic_base=raw_pydantic_model.__base__,  # type: ignore
-            pydantic_module=raw_pydantic_model.__module__,
-        )
-    elif nested:
-        for index, column in enumerate(nested):
-            if column == "$[]":
-                if not isinstance(raw_type, _GenericAlias) and not getattr(raw_type, "_name", "") == "List":
-                    raise ValueError(  # pragma: no cover
-                        f"Parse `{column}({nested})` is error: {raw_type} is not a List. "
+
+else:
+
+    def rebuild_message_type(
+        raw_type: Type,
+        route_func_name: str,
+        exclude_column_name: Optional[list] = None,
+        nested: Optional[list] = None,
+    ) -> Type:
+        if not exclude_column_name and not nested:
+            return raw_type
+        if exclude_column_name:
+            if not issubclass(raw_type, BaseModel):
+                raise TypeError("The value must be Base Model")
+            raw_pydantic_model: Type[BaseModel] = raw_type
+            annotation_dict: Dict[str, Tuple[Type, Any]] = {}
+            pydantic_validators: Dict[str, Any] = {}
+            for column_name, model_field in _pydanitc_adapter.model_fields(raw_pydantic_model).items():
+                if column_name in exclude_column_name:
+                    continue
+                annotation_dict[column_name] = (model_field.annotation, model_field)
+
+                if raw_pydantic_model.__pydantic_decorators__.field_validators:
+                    from pydantic import field_validator
+
+                    for key, validators in raw_pydantic_model.__pydantic_decorators__.field_validators.items():
+                        pydantic_validators[key] = field_validator(
+                            *validators.info.fields,
+                            mode=validators.info.mode,
+                            check_fields=validators.info.check_fields,
+                        )(validators.func)
+                elif raw_pydantic_model.__pydantic_decorators__.model_validators:
+                    from pydantic import model_validator
+
+                    for key, model_validators in raw_pydantic_model.__pydantic_decorators__.model_validators.items():
+                        pydantic_validators[key] = model_validator(mode=model_validators.info.mode)(
+                            model_validators.func
+                        )
+
+            return create_pydantic_model(  # type: ignore[return-value]
+                annotation_dict=annotation_dict,
+                class_name=(
+                    raw_pydantic_model.__name__ + f"{''.join([i.title() for i in route_func_name.split('_')])}Rebuild"
+                ),
+                pydantic_base=raw_pydantic_model.__base__,  # type: ignore
+                pydantic_module=raw_pydantic_model.__module__,
+            )
+        elif nested:
+            for index, column in enumerate(nested):
+                if column == "$[]":
+                    if not isinstance(raw_type, _GenericAlias) and not getattr(raw_type, "_name", "") == "List":
+                        raise ValueError(  # pragma: no cover
+                            f"Parse `{column}({nested})` is error: {raw_type} is not a List. "
+                        )
+                    raw_type = List[  # type: ignore[misc,index]
+                        rebuild_message_type(raw_type.__args__[0], route_func_name, nested=nested[1 + index :])
+                    ]
+                    break
+                elif column == "${}":
+                    if not isinstance(raw_type, _GenericAlias) and not getattr(raw_type, "_name", "") == "Dict":
+                        raise ValueError(  # pragma: no cover
+                            f"Parse `{column}({nested})` is error: {raw_type} is not a Dict. "
+                        )
+                    raw_type = Dict[  # type: ignore[misc,index]
+                        raw_type.__args__[0],  # type: ignore[name-defined]
+                        rebuild_message_type(raw_type.__args__[1], route_func_name, nested=nested[1 + index :]),
+                    ]
+                    break
+                elif column.startswith("$."):
+                    if not issubclass(raw_type, BaseModel):
+                        raise ValueError(  # pragma: no cover
+                            f"Parse `{column}({nested})` is error: {raw_type} is not a pydantic.BaseModel. "
+                        )
+                    key = column[2:]
+                    fields = _pydanitc_adapter.model_fields(raw_type)
+                    fields[key].annotation = rebuild_message_type(
+                        fields[key].annotation, route_func_name, nested=nested[1 + index :]
                     )
-                raw_type = List[  # type: ignore[misc,index]
-                    rebuild_message_type(raw_type.__args__[0], route_func_name, nested=nested[1 + index :])
-                ]
-                break
-            elif column == "${}":
-                if not isinstance(raw_type, _GenericAlias) and not getattr(raw_type, "_name", "") == "Dict":
-                    raise ValueError(  # pragma: no cover
-                        f"Parse `{column}({nested})` is error: {raw_type} is not a Dict. "
-                    )
-                raw_type = Dict[  # type: ignore[misc,index]
-                    raw_type.__args__[0],  # type: ignore[name-defined]
-                    rebuild_message_type(raw_type.__args__[1], route_func_name, nested=nested[1 + index :]),
-                ]
-                break
-            elif column.startswith("$."):
-                if not issubclass(raw_type, BaseModel):
-                    raise ValueError(  # pragma: no cover
-                        f"Parse `{column}({nested})` is error: {raw_type} is not a pydantic.BaseModel. "
-                    )
-                key = column[2:]
-                raw_type.__fields__[key].outer_type_ = rebuild_message_type(
-                    raw_type.__fields__[key].outer_type_, route_func_name, nested=nested[1 + index :]
-                )
-                break
-            else:
-                if not issubclass(raw_type, BaseModel):
-                    raise ValueError(  # pragma: no cover
-                        f"Parse `{column}({nested})` is error: {raw_type} is not a pydantic.BaseModel. "
-                    )
-                raw_type = raw_type.__fields__[column].outer_type_
-            if not (inspect.isclass(raw_type) and issubclass(raw_type, BaseModel)):
-                continue
-    return raw_type
+                    break
+                else:
+                    if not issubclass(raw_type, BaseModel):
+                        raise ValueError(  # pragma: no cover
+                            f"Parse `{column}({nested})` is error: {raw_type} is not a pydantic.BaseModel. "
+                        )
+                    raw_type = _pydanitc_adapter.model_fields(raw_type)[column].annotation
+
+                if not (inspect.isclass(raw_type) and issubclass(raw_type, BaseModel)):
+                    continue
+        return raw_type
 
 
 def rebuild_dict(

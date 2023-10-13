@@ -2,6 +2,7 @@ from typing import Dict, List
 
 import pytest
 from google.protobuf.empty_pb2 import Empty  # type: ignore
+from pait import _pydanitc_adapter
 from pait.util import gen_example_dict_from_pydantic_base_model
 from pydantic import BaseModel, Field
 
@@ -9,8 +10,8 @@ from example.grpc_common.python_example_proto_code.example_proto_by_option.user 
 from grpc_gateway.dynamic_gateway.gateway import _gen_response_model_handle
 from grpc_gateway.dynamic_gateway.inspect import GrpcMethodModel
 from grpc_gateway.model import GrpcServiceOptionModel
+from grpc_gateway.protobuf_types import Message
 from grpc_gateway.rebuild_message import rebuild_dict, rebuild_message_type
-from grpc_gateway.types import Message
 
 
 class Demo(BaseModel):
@@ -88,27 +89,55 @@ class TestUtil:
         # test exclude_column
         new_message = rebuild_message_type(Demo, "", exclude_column_name=["a", "b"])
         assert issubclass(new_message, BaseModel)
-        assert len(new_message.__fields__) == 1
-        for column in ["name", "type_", "required"]:
-            assert getattr(new_message.__fields__["c"], column) == getattr(Demo.__fields__["c"], column)
+        assert len(_pydanitc_adapter.model_fields(new_message)) == 1
+        if _pydanitc_adapter.is_v1:
+            for column in ["name", "type_", "required"]:
+                assert getattr(_pydanitc_adapter.model_fields(new_message)["c"], column) == getattr(
+                    _pydanitc_adapter.model_fields(Demo)["c"], column
+                )
+        else:
+            assert getattr(_pydanitc_adapter.model_fields(new_message)["c"], "annotation") == getattr(
+                _pydanitc_adapter.model_fields(Demo)["c"], "annotation"
+            )
+            assert (
+                getattr(_pydanitc_adapter.model_fields(new_message)["c"], "is_required")()
+                == getattr(_pydanitc_adapter.model_fields(Demo)["c"], "is_required")()
+            )
         # test nested
         new_message = rebuild_message_type(Demo, "", nested=["c", "cc"])
         assert issubclass(new_message, BaseModel)
         for model_column in ["aaa", "bbb"]:
-            for column in ["name", "type_", "required"]:
-                assert getattr(new_message.__fields__[model_column], column) == getattr(
-                    Demo.SubDemo.SubSubDemo.__fields__[model_column], column
+            if _pydanitc_adapter.is_v1:
+                for column in ["name", "type_", "required"]:
+                    for column in ["name", "type_", "required"]:
+                        assert getattr(_pydanitc_adapter.model_fields(new_message)[model_column], column) == getattr(
+                            _pydanitc_adapter.model_fields(Demo.SubDemo.SubSubDemo)[model_column], column
+                        )
+            else:
+                assert getattr(_pydanitc_adapter.model_fields(new_message)[model_column], "annotation") == getattr(
+                    _pydanitc_adapter.model_fields(Demo.SubDemo.SubSubDemo)[model_column], "annotation"
+                )
+                assert (
+                    getattr(_pydanitc_adapter.model_fields(new_message)[model_column], "is_required")()
+                    == getattr(_pydanitc_adapter.model_fields(Demo.SubDemo.SubSubDemo)[model_column], "is_required")()
                 )
         # Test complex nesteds
 
         new_message = rebuild_message_type(ComplexDemo, "", nested=["a", "$[]", "b", "${}", "$.c"])
         assert new_message.__args__[0].__args__[0] == str
         assert new_message.__args__[0].__args__[1] == ComplexDemo.SubDemo.SubSUbDemo
-        assert new_message.__args__[0].__args__[1].__fields__["c"].outer_type_.__args__[0] == int
-        assert (
-            new_message.__args__[0].__args__[1].__fields__["c"].outer_type_.__args__[1]
-            == ComplexDemo.SubDemo.SubSUbDemo.SubSubSubDemo
-        )
+        if _pydanitc_adapter.is_v1:
+            assert new_message.__args__[0].__args__[1].__fields__["c"].outer_type_.__args__[0] == int
+            assert (
+                new_message.__args__[0].__args__[1].__fields__["c"].outer_type_.__args__[1]
+                == ComplexDemo.SubDemo.SubSUbDemo.SubSubSubDemo
+            )
+        else:
+            assert new_message.__args__[0].__args__[1].__fields__["c"].annotation.__args__[0] == int
+            assert (
+                new_message.__args__[0].__args__[1].__fields__["c"].annotation.__args__[1]
+                == ComplexDemo.SubDemo.SubSUbDemo.SubSubSubDemo
+            )
 
     def test_rebuild_dict(self) -> None:
         # test not option param

@@ -25,7 +25,7 @@ from example.grpc_common.python_example_proto_code.example_proto_by_option.other
 from example.grpc_common.python_example_proto_code.example_proto_by_option.user import user_pait_route
 from grpc_gateway.dynamic_gateway.gateway import GrpcGatewayRoute
 from grpc_gateway.dynamic_gateway.inspect import GrpcMethodModel
-from grpc_gateway.types import Message
+from grpc_gateway.protobuf_types import Message
 
 message_to_dict = partial(MessageToDict, including_default_value_fields=True, preserving_proto_field_name=True)
 

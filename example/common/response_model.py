@@ -2,7 +2,7 @@ from typing import Any, Type
 
 from any_api.openapi import BaseResponseModel
 from google.protobuf.empty_pb2 import Empty  # type: ignore
-from pait.model import JsonResponseModel
+from pait.model.response import JsonResponseModel
 from protobuf_to_pydantic import msg_to_pydantic_model
 from pydantic import BaseModel, Field
 
