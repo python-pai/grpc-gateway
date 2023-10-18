@@ -10,8 +10,9 @@ __all__ = ["DescTemplate"]
 class DescTemplate(_DescTemplate):
     def template_field(self, field: str) -> Any:
         """
-        Support field
-        e.g.
+        Desc:
+            Support Pait field
+        e.g:
             protobuf content:
                 message GetBookRequest {
                   string isbn = 1 [(p2p_validate.rules).string.field = "pait@field|Query"];
@@ -30,6 +31,6 @@ class DescTemplate(_DescTemplate):
         :return: field class
         """
         field_class: Any = getattr(pait_field, field, None)
-        if not inspect.isclass(field_class) or not issubclass(field_class, pait_field.BaseField):
+        if not inspect.isclass(field_class) or not issubclass(field_class, pait_field.BaseRequestResourceField):
             raise ValueError(f"{field} is not a valid field")
         return field_class

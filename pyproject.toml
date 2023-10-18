@@ -16,7 +16,7 @@ packages = [{include = "grpc_gateway"}]
 "Documentation" = "https://so1n.me/pait/"
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.8"
 pait = "1.0.0a13"
 protobuf-to-pydantic = "^0.2.0.2"
 jinja2 = {version = ">=2.0.0", optional = true}
@@ -35,19 +35,18 @@ pytest-asyncio = "0.14.0"
 pytest-profiling = "1.7.0"
 mypy-protobuf = "3.2.0"
 lark = "^1.1.2"
+protobuf = "3.20.3"
 
 [tool.poetry.group.framework.dependencies]
-werkzeug = "1.0.1"
-Flask = "1.1.2"
-jinja2 = "^2.0.0"
-sanic = "21.3.4"
-sanic-testing = "0.3.0"
-tornado = "6.1"
-uvicorn = "0.13.4"
-starlette = "0.14.2"
-markupsafe = "2.0.1"
-itsdangerous = "1.1.0"
-protobuf = "3.20.1"
+werkzeug = "2.2.2"
+Flask = "2.2.2"
+sanic = "23.6.0"
+sanic-testing = "23.6.0"
+tornado = "6.2"
+uvicorn = "0.22.0"
+starlette = "0.27.0"
+httpx = "0.24.1"
+fastapi="0.103.2"
 # Do not run fastapi directly in a dev environment, but run it in tox(with fastapi) environment.
 # Because it has too many dependencies, there will be test environment dependency conflicts
 # fastapi = "0.65.0"
@@ -94,7 +93,10 @@ testpaths = ["tests"]
 
 [tool.coverage.run]
 branch = true
-source = ["grpc_gateway"]
+source = [
+    "grpc_gateway",
+    # ".tox/*lib/python*/site-packages/tox",
+]
 omit = [
     "grpc_gateway/protobuf_plugin/*",
     "grpc_gateway/proto/*",

@@ -31,9 +31,16 @@ repos:
     rev: '1.3.0'  # add version here
     hooks:
       - id: poetry-check
-      - id: poetry-lock
   - repo: local
     hooks:
+        - id: local-poetry-lock
+          name: poetry-lock
+          description: run poetry lock to update lock file
+          entry: poetry lock
+          language: python
+          language_version: python3.8
+          pass_filenames: false
+          args: [ "--no-update" ]
         - id: local-poetry-export
           name: my-poetry-export
           entry: poetry export
@@ -47,21 +54,14 @@ repos:
           language: python
           language_version: python3
           pass_filenames: false
-          args: ["-o", "requirements-test.txt", "--without-hashes", "--with-credentials", "--with", "test", "--with", "framework",  "--extras=all" ]
+          args: ["-o", "requirements-test.txt", "--without-hashes", "--with-credentials", "--only=test"]
         - id: local-poetry-export-no-framework-test
           name: my-poetry-export-no-framework-test
           entry: poetry export
           language: python
           language_version: python3
           pass_filenames: false
-          args: [ "-o", "requirements-no-framework-test.txt", "--without-hashes", "--with-credentials", "--with", "test", "--extras=all" ]
-        - id: local-poetry-export-dev
-          name: my-poetry-export
-          entry: poetry export
-          language: python
-          language_version: python3
-          pass_filenames: false
-          args: ["-o", "requirements-dev.txt", "--without-hashes", "--with-credentials", "--with", "test","--with", "framework","--with", "dev", "--extras=all" ]
+          args: [ "-o", "requirements-framework.txt", "--without-hashes", "--with-credentials", "--only=framework"]
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
     hooks:

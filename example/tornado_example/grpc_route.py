@@ -21,6 +21,8 @@ from example.grpc_common.python_example_proto_code.example_proto_by_option.other
 from example.grpc_common.python_example_proto_code.example_proto_by_option.user import user_pait_route
 from example.tornado_example.utils import MyHandler, create_app
 from grpc_gateway.dynamic_gateway.gateway import AsyncGrpcGatewayRoute as GrpcGatewayRoute
+from grpc_gateway.dynamic_gateway.gateway import GrpcGatewayRouteConfig
+from grpc_gateway.protobuf_plugin.gateway import StaticGrpcGatewayRouteConfig
 
 message_to_dict = partial(MessageToDict, including_default_value_fields=True, preserving_proto_field_name=True)
 
@@ -117,55 +119,65 @@ def add_grpc_gateway_route(app: Application) -> None:
         social_pb2_grpc.BookSocialStub,
         manager_pb2_grpc.BookManagerStub,
         other_pb2_grpc.OtherStub,
-        prefix="/api",
-        title="Grpc",
-        parse_msg_desc="by_mypy",
-        gen_response_model_handle=gen_response_model_handle,
-        make_response=_tornado_make_response,
-        request_handler=MyHandler,
-        msg_to_dict=message_to_dict,
-        parse_dict=parse_dict,
+        config=GrpcGatewayRouteConfig(
+            prefix="/api",
+            title="Grpc",
+            parse_msg_desc="by_mypy",
+            gen_response_model_handle=gen_response_model_handle,
+            make_response=_tornado_make_response,
+            msg_to_dict=message_to_dict,
+            parse_dict=parse_dict,
+            kwargs_param=dict(request_handler=MyHandler),
+        ),
     )
     set_app_attribute(app, "grpc_gateway_route", grpc_gateway_route)  # support unittest
     user_grpc_route = user_pait_route.StaticGrpcGatewayRoute(
         app,
-        prefix="/api/static",
-        title="static_user",
-        make_response=_tornado_make_response,
         is_async=True,
-        request_handler=MyHandler,
-        msg_to_dict=message_to_dict,
-        parse_dict=parse_dict,
+        config=StaticGrpcGatewayRouteConfig(
+            prefix="/api/static",
+            title="static_user",
+            make_response=_tornado_make_response,
+            msg_to_dict=message_to_dict,
+            parse_dict=parse_dict,
+            kwargs_param=dict(request_handler=MyHandler),
+        ),
     )
     manager_grpc_route = manager_pait_route.StaticGrpcGatewayRoute(
         app,
-        prefix="/api/static",
-        title="static_manager",
-        make_response=_tornado_make_response,
         is_async=True,
-        request_handler=MyHandler,
-        msg_to_dict=message_to_dict,
-        parse_dict=parse_dict,
+        config=StaticGrpcGatewayRouteConfig(
+            prefix="/api/static",
+            title="static_manager",
+            make_response=_tornado_make_response,
+            msg_to_dict=message_to_dict,
+            parse_dict=parse_dict,
+            kwargs_param=dict(request_handler=MyHandler),
+        ),
     )
     social_group_route = social_pait_route.StaticGrpcGatewayRoute(
         app,
-        prefix="/api/static",
-        title="static_social",
-        make_response=_tornado_make_response,
         is_async=True,
-        request_handler=MyHandler,
-        msg_to_dict=message_to_dict,
-        parse_dict=parse_dict,
+        config=StaticGrpcGatewayRouteConfig(
+            prefix="/api/static",
+            title="static_social",
+            make_response=_tornado_make_response,
+            msg_to_dict=message_to_dict,
+            parse_dict=parse_dict,
+            kwargs_param=dict(request_handler=MyHandler),
+        ),
     )
     other_group_route = other_pait_route.StaticGrpcGatewayRoute(
         app,
-        prefix="/api/static",
-        title="static_other",
-        make_response=_tornado_make_response,
         is_async=True,
-        request_handler=MyHandler,
-        msg_to_dict=message_to_dict,
-        parse_dict=parse_dict,
+        config=StaticGrpcGatewayRouteConfig(
+            prefix="/api/static",
+            title="static_other",
+            make_response=_tornado_make_response,
+            msg_to_dict=message_to_dict,
+            parse_dict=parse_dict,
+            kwargs_param=dict(request_handler=MyHandler),
+        ),
     )
 
     def _before_server_start() -> None:

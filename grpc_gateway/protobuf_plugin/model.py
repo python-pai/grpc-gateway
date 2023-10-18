@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from grpc_gateway.model import GrpcServiceOptionModel
-from grpc_gateway.types import MethodDescriptorProto, ServiceDescriptorProto
+from grpc_gateway.protobuf_types import MethodDescriptorProto, ServiceDescriptorProto
 
 if TYPE_CHECKING:
     from grpc_gateway.protobuf_plugin.field_desc_proto_to_route_code import FileDescriptorProtoToRouteCode
@@ -20,7 +20,7 @@ class GrpcTemplateVarModel(object):
     index: int
     # The attribute name prefix that the route gateway binds to the Web framework instance
     attr_prefix: str
-    # The name of the protobuf
+    # The name of the protobuf file
     filename: str
     # The name of the route gateway
     gateway_name: str
@@ -67,13 +67,13 @@ class GrpcTemplateVarModel(object):
 
     #       request_message_model_name = user_info_p2p.GetUserInfoRequest
     #       response_message_model_name = user_info_p2p.GetUserInfoResponse
-    #       request_message_name = user_info_p2p.GetUserInfoRequest
-    #       response_message_name = user_info_p2p.GetUserInfoResponse
+    #       request_message_name = user_info_pb2.GetUserInfoRequest
+    #       response_message_name = user_info_pb2.GetUserInfoResponse
     #       stub_service_name = UserInfoService_stub ({service name}_stub)
     #       service_name = UserInfoService (service name)
-    #       model_module_name = user_info_p2p
-    #       message_module_name = user_info_pb2
-    #       stub_module_name = user_info_pb2_grpc
+    #       model_module_name = user_info_p2p ({package}_p2p)
+    #       message_module_name = user_info_pb2 ({package}_pb2)
+    #       stub_module_name = user_info_pb2_grpc ({package}_pb2_grpc)
     #       package = user_info (package)
     #       # (package.title().replace("_", "") + output_type_name + "JsonResponseModel")
     #       response_class_name = UserInfoGetUserInfoResponseJsonResponseModel

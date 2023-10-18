@@ -22,14 +22,14 @@ from grpc_gateway.model import GrpcServiceOptionModel, get_grpc_service_model_fr
 class GrpcMethodModel(object):
     """gRPC method model (Information extracted via Stub)"""
 
-    invoke_name: str
-    grpc_method_url: str
-    alias_grpc_method_url: str
-    grpc_service_option_model: GrpcServiceOptionModel
+    invoke_name: str  # protobuf->service->rpc invoke name
+    grpc_method_url: str  # protobuf->service->rpc url
+    alias_grpc_method_url: str  # protobuf->service->rpc url + index
+    grpc_service_option_model: GrpcServiceOptionModel  # protobuf->service->rpc option
     # func: Callable
-    request: Type[Message] = Message
-    response: Type[Message] = Message
-    desc: str = ""
+    request: Type[Message] = Message  # protobuf->service->rpc request message
+    response: Type[Message] = Message  # protobuf->service->rpc response message
+    desc: str = ""  # protobuf->service->rpc desc
 
 
 class ParseStub(object):
@@ -37,7 +37,7 @@ class ParseStub(object):
     The grpc method and Message are parsed through the source code of gRPC stub
     """
 
-    def __init__(self, stub: Any, comment_prefix: str = "grpc-gateway"):
+    def __init__(self, stub: Any, comment_prefix: str = "grpc-gateway") -> None:
         self._stub: Any = stub
         self.name: str = self._stub.__name__
         self._method_list_dict: Dict[str, List[GrpcMethodModel]] = {}
@@ -88,15 +88,14 @@ class ParseStub(object):
                         return get_grpc_service_model_from_option_message(option_message)
         return []
 
-    @staticmethod
-    def get_service_option_from_grpc_desc(desc: str, service_desc: str) -> List[GrpcServiceOptionModel]:
+    def get_service_option_from_grpc_desc(self, desc: str, service_desc: str) -> List[GrpcServiceOptionModel]:
         grpc_pait_model_list: List[GrpcServiceOptionModel] = []
         grpc_service_option_dict: dict = {}
         for line in service_desc.split("\n") + desc.split("\n"):
             line = line.strip()
-            if not line.startswith("grpc-gateway: {"):
+            if not line.startswith(self._comment_prefix + ": {"):
                 continue
-            line = line.replace("grpc-gateway:", "")
+            line = line.replace(f"{self._comment_prefix}:", "")
             grpc_service_option_dict.update(json.loads(line))
 
         while True:

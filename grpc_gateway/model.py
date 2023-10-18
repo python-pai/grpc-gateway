@@ -1,9 +1,29 @@
 import logging
-from typing import List, Tuple, Union
+from typing import Any, Callable, List, Tuple, Union
 
 from google.protobuf.json_format import MessageToDict
 from google.protobuf.message import Message
-from pydantic import BaseModel, Field, validator
+from pait import _pydanitc_adapter
+from pydantic import BaseModel, Field
+
+if _pydanitc_adapter.is_v1:
+    from pydantic import validator as _field_validator  # type: ignore
+
+    def field_validator(*fields: str, mode: str) -> Callable[[Any], Any]:  # type: ignore
+        pre = None
+        if mode == "before":
+            pre = True
+        elif mode == "after":
+            pre = False
+        else:
+            raise ValueError(f"Not support mode: `{mode}`")
+
+        return _field_validator(*fields, pre=pre)
+
+else:
+    from pydantic import field_validator as _field_validator  # type: ignore
+
+    field_validator = _field_validator  # type: ignore
 
 
 class BuildMessageModel(BaseModel):
@@ -13,13 +33,13 @@ class BuildMessageModel(BaseModel):
     def has_value(self) -> bool:
         return bool(self.exclude_column_name) or bool(self.nested)
 
-    @validator("exclude_column_name", pre=True)
+    @field_validator("exclude_column_name", mode="before")
     def exclude_column_name_validator(cls, v: Union[str, list]) -> list:
         if isinstance(v, str):
             return [i for i in v.split(",") if i]
         return v
 
-    @validator("nested", pre=True)
+    @field_validator("nested", mode="before")
     def nested_validator(cls, v: Union[str, list]) -> list:
         if isinstance(v, str):
             return [i for i in v.split("/") if i]
@@ -27,7 +47,7 @@ class BuildMessageModel(BaseModel):
 
 
 class RequestBuildMessageModel(BuildMessageModel):
-    @validator("nested", pre=True)
+    @field_validator("nested", mode="before")
     def nested_validator(cls, v: Union[str, list]) -> list:
         if isinstance(v, str):
             return [i for i in v.split("/") if i if not i.startswith("$")]

@@ -1,26 +1,28 @@
 import asyncio
 from abc import ABCMeta
+from dataclasses import dataclass, field
 from sys import modules
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type, Union
 
 import grpc
 from google.protobuf.empty_pb2 import Empty  # type: ignore
+from pait import _pydanitc_adapter
 from pait.app.base.simple_route import SimpleRoute
 from pait.core import Pait
-from pait.field import BaseField, Body, Query
+from pait.field import BaseRequestResourceField, Body, Query
 from pait.model.response import BaseResponseModel, JsonResponseModel
 from pait.model.tag import Tag
 from protobuf_to_pydantic import msg_to_pydantic_model
 from pydantic import BaseModel
 
-from grpc_gateway.base_gateway import BaseGrpcGatewayRoute
+from grpc_gateway.base_gateway import BaseGrpcGatewayRoute, BaseGrpcGatewayRouteConfig
 from grpc_gateway.desc_template import DescTemplate
-from grpc_gateway.dynamic_gateway.inspect import GrpcMethodModel, Message, MessageToDict, ParseStub
+from grpc_gateway.dynamic_gateway.inspect import GrpcMethodModel, Message, ParseStub
 from grpc_gateway.rebuild_message import rebuild_message_type
 
-__all__ = ["DynamicGrpcGatewayRoute", "AsyncGrpcGatewayRoute", "GrpcGatewayRoute"]
+__all__ = ["DynamicGrpcGatewayRoute", "AsyncGrpcGatewayRoute", "GrpcGatewayRoute", "GrpcGatewayRouteConfig"]
 
-_http_method_default_field_dict: Dict[str, Type[BaseField]] = {"GET": Query, "POST": Body}
+_http_method_default_field_dict: Dict[str, Type[BaseRequestResourceField]] = {"GET": Query, "POST": Body}
 
 
 def _gen_response_model_handle(grpc_model: GrpcMethodModel) -> Type[BaseResponseModel]:
@@ -47,67 +49,39 @@ def _gen_response_model_handle(grpc_model: GrpcMethodModel) -> Type[BaseResponse
     return CustomerJsonResponseModel
 
 
-class DynamicGrpcGatewayRoute(BaseGrpcGatewayRoute):
-    def __init__(
-        self,
-        app: Any,
-        *stub_list: Any,
-        parse_msg_desc: Optional[str] = None,
-        prefix: str = "",
-        title: str = "",
-        msg_to_dict: Callable = MessageToDict,
-        parse_dict: Optional[Callable] = None,
-        pait: Optional[Pait] = None,
-        make_response: Optional[Callable] = None,
-        url_handler: Callable[[str], str] = lambda x: x.replace(".", "-"),
-        desc_template: Type[DescTemplate] = DescTemplate,
-        gen_response_model_handle: Optional[Callable[[GrpcMethodModel], Type[BaseResponseModel]]] = None,
-        http_method_default_field_dict: Optional[Dict[str, Type[BaseField]]] = None,
-        comment_prefix: str = "grpc-gateway",
-        **kwargs: Any,
-    ):
+def _url_handle(url: str) -> str:
+    return url.replace(".", "-")
+
+
+@dataclass
+class GrpcGatewayRouteConfig(BaseGrpcGatewayRouteConfig):
+    # url processing function, the default symbol: `.` is converted to `-`
+    url_handler: Callable[[str], str] = _url_handle
+    # DescTemplate object, which can extend and modify template adaptation rules through inheritance
+    desc_template: Type[DescTemplate] = DescTemplate
+    # Methods for generating OpenAPI response objects
+    gen_response_model_handle: Callable[[GrpcMethodModel], Type[BaseResponseModel]] = _gen_response_model_handle
+    http_method_default_field_dict: Dict[str, Type[BaseRequestResourceField]] = field(
+        default_factory=lambda: _http_method_default_field_dict
+    )
+    # The prefix of the comment, the default is `grpc-gateway`
+    comment_prefix: str = "grpc-gateway"
+
+
+class DynamicGrpcGatewayRoute(BaseGrpcGatewayRoute[GrpcGatewayRouteConfig]):
+    def __init__(self, app: Any, *stub_list: Any, config: Optional[GrpcGatewayRouteConfig] = None):
         """
         :param app: Instance object of the web framework
         :param stub_list: gRPC Stub List
-        :param parse_msg_desc: The way to parse protobuf message, see the specific usage method：
-            https://github.com/so1n/protobuf_to_pydantic#23parameter-verification
-        :param prefix: url prefix
-        :param title: Title of gRPC Gateway, if there are multiple gRPC Gateways in the same Stub,
-            you need to ensure that the title of each gRPC Gateway is different
-        :param msg_to_dict: protobuf.json_format.msg_to_dict func
-        :param parse_dict: protobuf.json_format.parse_dict func
-        :param pait: instance of pait
-        :param make_response: The method of converting Message to Response object
-        :param url_handler: url processing function, the default symbol: `.` is converted to `-`
-        :param desc_template:
-            DescTemplate object, which can extend and modify template adaptation rules through inheritance
-        :param gen_response_model_handle: Methods for generating OpenAPI response objects
-        :param comment_prefix: The prefix of the comment, the default is `grpc-gateway`
-        :param kwargs: Extended parameters supported by the `add multi simple route` function of different frameworks
+        :param config: GrpcGatewayRoute Config
         """
-        super().__init__(
-            app=app,
-            parse_msg_desc=parse_msg_desc,
-            prefix=prefix,
-            title=title,
-            msg_to_dict=msg_to_dict,
-            parse_dict=parse_dict,
-            pait=pait,
-            make_response=make_response,
-            gen_response_model_handle=gen_response_model_handle,
-            **kwargs,
-        )
-        self._gen_response_model_handle: Callable[[GrpcMethodModel], Type[BaseResponseModel]] = (
-            gen_response_model_handle or _gen_response_model_handle
-        )
-        self.desc_template: Type[DescTemplate] = desc_template
-        self.stub_list: Tuple[Any, ...] = stub_list
-        self.url_handler: Callable[[str], str] = url_handler
+        super().__init__(app=app, config=config or GrpcGatewayRouteConfig())
+
         self.grpc_method_url_func_dict: Dict[str, Callable] = {}
-        self.http_method_default_field_dict: Dict[str, Type[BaseField]] = (
-            http_method_default_field_dict or _http_method_default_field_dict
-        )
-        self.comment_prefix: str = comment_prefix
+        self._gen_response_model_handle: Callable[
+            [GrpcMethodModel], Type[BaseResponseModel]
+        ] = self.config.gen_response_model_handle
+        self.stub_list: Tuple[Any, ...] = stub_list
         self._add_route(app, **self._add_multi_simple_route_kwargs)
 
     def _gen_request_pydantic_class(self, grpc_model: GrpcMethodModel) -> Type:
@@ -116,17 +90,17 @@ class DynamicGrpcGatewayRoute(BaseGrpcGatewayRoute):
          Message (Field is pait.field)
         """
         http_method: str = grpc_model.grpc_service_option_model.http_method
-        if http_method not in self.http_method_default_field_dict:
+        if http_method not in self.config.http_method_default_field_dict:
             raise ValueError(f"{http_method} not in http_method_default_field_dict")
 
         request_model: Type[BaseModel] = msg_to_pydantic_model(
             grpc_model.request,
-            default_field=self.http_method_default_field_dict[http_method],
-            comment_prefix=self.comment_prefix,
-            desc_template=self.desc_template,
+            default_field=self.config.http_method_default_field_dict[http_method],
+            comment_prefix=self.config.comment_prefix,
+            desc_template=self.config.desc_template,
             parse_msg_desc_method=getattr(grpc_model.request, "_message_module")
-            if self._parse_msg_desc == "by_mypy"
-            else self._parse_msg_desc,
+            if self.config.parse_msg_desc == "by_mypy"
+            else self.config.parse_msg_desc,
         )
         if grpc_model.grpc_service_option_model.request_message.has_value():
             return rebuild_message_type(
@@ -142,7 +116,7 @@ class DynamicGrpcGatewayRoute(BaseGrpcGatewayRoute):
         """Generate the corresponding pait instance according to the object of the grpc calling method"""
         tag_list: List[Tag] = [self._grpc_tag]
         for tag, desc in grpc_model.grpc_service_option_model.tag or [
-            ("grpc" + "-" + self.url_handler(grpc_model.grpc_method_url.split("/")[1]), "")
+            ("grpc" + "-" + self.config.url_handler(grpc_model.grpc_method_url.split("/")[1]), "")
         ]:
             if tag in self._tag_dict:
                 pait_tag: Tag = self._tag_dict[tag]
@@ -170,7 +144,8 @@ class DynamicGrpcGatewayRoute(BaseGrpcGatewayRoute):
         func: Optional[Callable] = self.grpc_method_url_func_dict.get(grpc_model.grpc_method_url, None)
         if not func:
             raise RuntimeError(  # pragma: no cover
-                f"{grpc_model.grpc_method_url}'s func is not found, Please call init_channel to register the channel"
+                f"{grpc_model.alias_grpc_method_url}'s func is not found, "
+                f"Please call {self.init_channel.__name__} to register the channel"
             )
         return func
 
@@ -185,11 +160,11 @@ class DynamicGrpcGatewayRoute(BaseGrpcGatewayRoute):
         request_pydantic_model_class: Type = self._gen_request_pydantic_class(grpc_model)
         pait: Pait = self._gen_pait_from_grpc_model(grpc_model)
         _route = self.gen_route(grpc_model, request_pydantic_model_class)
-
         # change route func name and qualname
-        _route.__name__ = (self.title + "." + grpc_model.alias_grpc_method_url).replace(".", "_").replace(" ", "_")
+        _route.__name__ = (
+            (self.config.title + "." + grpc_model.alias_grpc_method_url).replace(".", "_").replace(" ", "_")
+        )
         _route.__qualname__ = _route.__qualname__.replace("._route", "." + _route.__name__)
-
         # Since the route is generated dynamically, pait will not be able to resolve the type of
         # 'request_pydantic_model_class', so it needs to inject 'request_pydantic_model_class' into the module
         # where the route is generated
@@ -200,7 +175,7 @@ class DynamicGrpcGatewayRoute(BaseGrpcGatewayRoute):
     def _add_route(self, app: Any, **kwargs: Any) -> Any:  # type: ignore
         """Add the generated routing function to the corresponding web framework instance"""
         for stub_class in self.stub_list:
-            parse_stub: ParseStub = ParseStub(stub_class)
+            parse_stub: ParseStub = ParseStub(stub_class, comment_prefix=self.config.comment_prefix)
             simple_route_list: List[SimpleRoute] = []
             for _, grpc_model_list in parse_stub.method_list_dict.items():
                 for grpc_model in grpc_model_list:
@@ -209,13 +184,13 @@ class DynamicGrpcGatewayRoute(BaseGrpcGatewayRoute):
                         continue
                     simple_route_list.append(
                         SimpleRoute(
-                            url=self.url_handler(grpc_model.grpc_service_option_model.url),
+                            url=self.config.url_handler(grpc_model.grpc_service_option_model.url),
                             route=_route,
                             methods=[grpc_model.grpc_service_option_model.http_method],
                         )
                     )
             self._add_multi_simple_route(
-                app, *simple_route_list, prefix=self.prefix, title=self.title + parse_stub.name, **kwargs
+                app, *simple_route_list, prefix=self.config.prefix, title=self.config.title + parse_stub.name, **kwargs
             )
 
     def reinit_channel(
@@ -237,7 +212,7 @@ class GrpcGatewayRoute(DynamicGrpcGatewayRoute, metaclass=ABCMeta):
             func: Callable = self.get_grpc_func(grpc_model)
             request_msg: Message = self.msg_from_dict_handle(
                 grpc_model.request,
-                request_pydantic_model.dict(),  # type: ignore
+                _pydanitc_adapter.model_dump(request_pydantic_model),
                 grpc_model.grpc_service_option_model.request_message.nested,
             )
 
@@ -260,7 +235,7 @@ class AsyncGrpcGatewayRoute(DynamicGrpcGatewayRoute, metaclass=ABCMeta):
             func: Callable = self.get_grpc_func(grpc_model)
             request_msg: Message = self.msg_from_dict_handle(
                 grpc_model.request,
-                request_pydantic_model.dict(),  # type: ignore
+                _pydanitc_adapter.model_dump(request_pydantic_model),
                 grpc_model.grpc_service_option_model.request_message.nested,
             )
             loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()

@@ -138,7 +138,7 @@ class StaticGrpcGatewayRoute(BaseStaticGrpcGatewayRoute):
                 methods=["POST"],
                 route=pait_async_nested_demo_route if self.is_async else pait_nested_demo_route
             ),
-            prefix=self.prefix,
-            title=self.title,
-            ** self.kwargs
+            prefix=self.config.prefix,
+            title=self.config.title,
+            ** self._add_multi_simple_route_kwargs
         )

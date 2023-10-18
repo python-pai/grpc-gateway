@@ -72,7 +72,6 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
     response_jinja_template_str: str = dedent(
         """
     class {{response_class_name}}(JsonResponseModel):
-        name: str = "{{package}}_{{response_message_model_name}}"
         {% if response_message_model_name == "Empty" %}
         description: str = (
             {{gen_code._get_value_code(gen_code.config.empty_type)}}.__doc__ or ""
@@ -204,7 +203,7 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
                         or grpc_service_option_model.request_message.nested
                     ) and input_type_name != "Empty":
                         exclude_column_name_str = self._get_value_code(
-                            grpc_service_option_model.request_message.exclude_column_name, sort=False
+                            grpc_service_option_model.request_message.exclude_column_name
                         )
                         nested_str = self._get_value_code(grpc_service_option_model.request_message.nested, sort=False)
 
@@ -377,9 +376,9 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
             f"{tab_str * 2}self._add_multi_simple_route(\n"
             f"{tab_str * 3}self.app,\n"
             f"{(',' + chr(10)).join(simple_route_str_list) + ',' if simple_route_str_list else ''}\n"
-            f"{tab_str * 3}prefix=self.prefix,\n"
-            f"{tab_str * 3}title=self.title,\n"
-            f"{tab_str * 3}** self.kwargs\n"
+            f"{tab_str * 3}prefix=self.config.prefix,\n"
+            f"{tab_str * 3}title=self.config.title,\n"
+            f"{tab_str * 3}** self._add_multi_simple_route_kwargs \n"
             f"{tab_str * 2})\n"
         )
         logger.debug(gateway_class_str)

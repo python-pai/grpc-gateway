@@ -4,7 +4,7 @@ from pait.app.base import BaseTestHelper
 from pait.openapi.openapi import OpenAPI
 
 from example.common.response_model import gen_response_model_handle
-from grpc_gateway.dynamic_gateway.gateway import DynamicGrpcGatewayRoute
+from grpc_gateway.dynamic_gateway.gateway import DynamicGrpcGatewayRoute, GrpcGatewayRouteConfig
 from tests.conftest import grpc_test_openapi
 
 
@@ -39,10 +39,12 @@ class BaseTest(object):
             user_pb2_grpc.UserStub,
             social_pb2_grpc.BookSocialStub,
             manager_pb2_grpc.BookManagerStub,
-            prefix=prefix + "/",
-            title="Grpc-test",
-            parse_msg_desc=grpc_path,
-            gen_response_model_handle=gen_response_model_handle,
+            config=GrpcGatewayRouteConfig(
+                prefix=prefix + "/",
+                title="Grpc-test",
+                parse_msg_desc=grpc_path,
+                gen_response_model_handle=gen_response_model_handle,
+            ),
         )
         grpc_test_openapi(app, url_prefix=prefix)
 
@@ -61,9 +63,11 @@ class BaseTest(object):
             user_pb2_grpc.UserStub,
             social_pb2_grpc.BookSocialStub,
             manager_pb2_grpc.BookManagerStub,
-            prefix=prefix + "/",
-            title="Grpc-test",
-            gen_response_model_handle=gen_response_model_handle,
+            config=GrpcGatewayRouteConfig(
+                prefix=prefix + "/",
+                title="Grpc-test",
+                gen_response_model_handle=gen_response_model_handle,
+            ),
         )
         grpc_test_openapi(app, url_prefix=prefix, option_str="_by_option")
 
