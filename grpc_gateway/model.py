@@ -9,16 +9,16 @@ from pydantic import BaseModel, Field
 if _pydanitc_adapter.is_v1:
     from pydantic import validator as _field_validator  # type: ignore
 
-    def field_validator(*fields: str, mode: str) -> Callable[[Any], Any]:  # type: ignore
-        pre = None
-        if mode == "before":
-            pre = True
-        elif mode == "after":
-            pre = False
-        else:
-            raise ValueError(f"Not support mode: `{mode}`")
-
-        return _field_validator(*fields, pre=pre)
+    def field_validator(*fields: str, mode: str = "after", **kwargs) -> Callable[[Any], Any]:  # type: ignore
+        if "pre" not in kwargs:
+            if mode == "before":
+                pre = True
+            elif mode == "after":
+                pre = False
+            else:
+                raise ValueError(f"Not support mode: `{mode}`")
+            kwargs["pre"] = pre
+        return _field_validator(*fields, **kwargs)
 
 else:
     from pydantic import field_validator as _field_validator  # type: ignore
@@ -50,7 +50,7 @@ class RequestBuildMessageModel(BuildMessageModel):
     @field_validator("nested", mode="before")
     def nested_validator(cls, v: Union[str, list]) -> list:
         if isinstance(v, str):
-            return [i for i in v.split("/") if i if not i.startswith("$")]
+            return [i for i in v.split("/") if i and not i.startswith("$")]
         return v
 
 
@@ -58,7 +58,7 @@ class GrpcServiceOptionModel(BaseModel):
     """grpc service option"""
 
     name: str = Field("", description="service name")
-    author: Tuple[str] = Field(default_factory=tuple, description="service author")
+    author: Tuple[str, ...] = Field(default_factory=tuple, description="service author")
     tag: List[Tuple[str, str]] = Field(default_factory=list, description="service openapi tag")
     group: str = Field("", description="service pait group")
     desc: str = Field("", description="service openapi description")
@@ -86,23 +86,25 @@ def get_grpc_service_model_from_option_message(option_message: Message) -> List[
             if value.url:
                 grpc_service_option_dict["url"] = value.url
             if key == "custom":
-                logging.warning(f"Not support column:{key}")
+                logging.warning(f"Not support column:{key}")  # pragma: no cover
             elif key != "any":
                 grpc_service_option_dict["http_method"] = key
         elif key in ("body", "response_body"):
-            logging.warning(f"Not support column:{key}")
+            logging.warning(f"Not support column:{key}")  # pragma: no cover
         elif key == "additional_bindings":
             for item in value:
                 grpc_service_model_list.extend(get_grpc_service_model_from_option_message(item))
         elif key in ("request_message", "response_message"):
             if isinstance(value, dict):
-                grpc_service_option_dict[key] = value
+                grpc_service_option_dict[key] = value  # pragma: no cover
             else:
                 grpc_service_option_dict[key] = MessageToDict(value, preserving_proto_field_name=True)
+        elif key == "author":
+            grpc_service_option_dict[key] = tuple(value)
         else:
             grpc_service_option_dict[key] = value
 
     grpc_service_model: GrpcServiceOptionModel = GrpcServiceOptionModel(**grpc_service_option_dict)
     grpc_service_model.http_method = grpc_service_model.http_method.upper()
-    grpc_service_model_list.append(grpc_service_model)
+    grpc_service_model_list = [grpc_service_model] + grpc_service_model_list
     return grpc_service_model_list

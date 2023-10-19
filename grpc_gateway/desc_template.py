@@ -15,7 +15,7 @@ class DescTemplate(_DescTemplate):
         e.g:
             protobuf content:
                 message GetBookRequest {
-                  string isbn = 1 [(p2p_validate.rules).string.field = "pait@field|Query"];
+                  string isbn = 1 [(p2p_validate.rules).string.field = "grpc-gateway@field|Query"];
                   string not_use_field1 = 2;
                   string not_use_field2 = 3;
                 }

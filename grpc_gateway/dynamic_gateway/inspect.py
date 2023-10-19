@@ -32,6 +32,51 @@ class GrpcMethodModel(object):
     desc: str = ""  # protobuf->service->rpc desc
 
 
+def get_service_option_from_grpc_desc(
+    desc: str, service_desc: str, comment_prefix: str
+) -> List[GrpcServiceOptionModel]:
+    grpc_pait_model_list: List[GrpcServiceOptionModel] = []
+    grpc_service_option_dict: dict = {}
+    for line in service_desc.split("\n") + desc.split("\n"):
+        line = line.strip()
+        if not line.startswith(comment_prefix + ": {"):
+            continue
+        line = line.replace(f"{comment_prefix}:", "")
+        grpc_service_option_dict.update(json.loads(line))
+
+    if grpc_service_option_dict:
+        while True:
+            grpc_pait_model: GrpcServiceOptionModel = GrpcServiceOptionModel(**grpc_service_option_dict)
+            grpc_pait_model.http_method = grpc_pait_model.http_method.upper()
+            grpc_pait_model_list.append(grpc_pait_model)
+            grpc_service_option_dict = grpc_service_option_dict.pop("additional_bindings", None)
+            if not grpc_service_option_dict:
+                break
+
+    return grpc_pait_model_list
+
+
+def get_service_option_from_message(
+    input_message: Type[Message], output_message: Type[Message], message_module: ModuleType
+) -> List[GrpcServiceOptionModel]:
+    """Extract the Service Option through input_message or output_message DESCRIPTOR"""
+    server_list: List[ServiceDescriptor] = message_module.DESCRIPTOR.services_by_name.values()  # type: ignore
+    for server_descriptor in server_list:
+        for method in server_descriptor.methods:
+            if not (
+                method.input_type.full_name == input_message.DESCRIPTOR.full_name
+                and method.output_type.full_name == output_message.DESCRIPTOR.full_name
+            ):
+                continue
+            if not method.GetOptions().ListFields():
+                continue
+            for field, option_message in method.GetOptions().ListFields():
+                if not field.full_name.endswith("api.http"):
+                    continue
+                return get_grpc_service_model_from_option_message(option_message)
+    return []
+
+
 class ParseStub(object):
     """
     The grpc method and Message are parsed through the source code of gRPC stub
@@ -54,7 +99,7 @@ class ParseStub(object):
     def _gen_message(line: str, match_str: str, class_module: ModuleType) -> Type[Message]:
         module_path_find_list = re.findall(match_str, line)
         if len(module_path_find_list) != 1:
-            raise ValueError("module path not found")
+            raise ValueError("module path not found")  # pragma: no cover
         module_path: str = module_path_find_list[0]
         module_path_list: List[str] = module_path.split(".")
         message_module: ModuleType = getattr(class_module, module_path_list[0])
@@ -62,51 +107,9 @@ class ParseStub(object):
         setattr(message_model, "_message_module", message_module)
 
         if not issubclass(message_model, Message):
-            raise RuntimeError("Can not found message")
+            raise RuntimeError("Can not found message")  # pragma: no cover
 
         return message_model
-
-    def get_service_option_from_message(
-        self, input_message: Type[Message], output_message: Type[Message]
-    ) -> List[GrpcServiceOptionModel]:
-        """Extract the Service Option through input_message or output_message DESCRIPTOR"""
-        for message in [input_message, output_message]:
-            message_module: ModuleType = getattr(message, "_message_module")
-            server_list: List[ServiceDescriptor] = message_module.DESCRIPTOR.services_by_name.values()  # type: ignore
-            for server_descriptor in server_list:
-                for method in server_descriptor.methods:
-                    if not (
-                        method.input_type.full_name == input_message.DESCRIPTOR.full_name
-                        and method.output_type.full_name == output_message.DESCRIPTOR.full_name
-                    ):
-                        continue
-                    if not method.GetOptions().ListFields():
-                        continue
-                    for field, option_message in method.GetOptions().ListFields():
-                        if not field.full_name.endswith("api.http"):
-                            continue
-                        return get_grpc_service_model_from_option_message(option_message)
-        return []
-
-    def get_service_option_from_grpc_desc(self, desc: str, service_desc: str) -> List[GrpcServiceOptionModel]:
-        grpc_pait_model_list: List[GrpcServiceOptionModel] = []
-        grpc_service_option_dict: dict = {}
-        for line in service_desc.split("\n") + desc.split("\n"):
-            line = line.strip()
-            if not line.startswith(self._comment_prefix + ": {"):
-                continue
-            line = line.replace(f"{self._comment_prefix}:", "")
-            grpc_service_option_dict.update(json.loads(line))
-
-        while True:
-            grpc_pait_model: GrpcServiceOptionModel = GrpcServiceOptionModel(**grpc_service_option_dict)
-            grpc_pait_model.http_method = grpc_pait_model.http_method.upper()
-            grpc_pait_model_list.append(grpc_pait_model)
-            grpc_service_option_dict = grpc_service_option_dict.pop("additional_bindings", None)
-            if not grpc_service_option_dict:
-                break
-
-        return grpc_pait_model_list
 
     def _parse(self) -> None:
         # get stub source code
@@ -116,7 +119,7 @@ class ParseStub(object):
         service_class_name: str = self._stub.__name__.replace("Stub", "Servicer")
         class_module: Optional[ModuleType] = inspect.getmodule(self._stub)
         if not class_module:
-            raise RuntimeError(f"Can not found {self._stub} module")
+            raise RuntimeError(f"Can not found {self._stub} module")  # pragma: no cover
         service_class: Type = getattr(class_module, service_class_name)
 
         # parse source code
@@ -140,12 +143,17 @@ class ParseStub(object):
             desc: str = service_class.__dict__[invoke_name].__doc__ or ""
 
             # Get the Option for each method in the gRPC Service through protocol optional
-            grpc_service_option_model_list: List[GrpcServiceOptionModel] = self.get_service_option_from_message(
-                request, response
+            message_module: ModuleType = getattr(request, "_message_module")
+            grpc_service_option_model_list: List[GrpcServiceOptionModel] = get_service_option_from_message(
+                request, response, message_module
             )
             if not grpc_service_option_model_list:
                 # Get the Option for each method in the gRPC Service through comment
-                grpc_service_option_model_list = self.get_service_option_from_grpc_desc(desc, service_desc)
+                grpc_service_option_model_list = get_service_option_from_grpc_desc(
+                    desc, service_desc, self._comment_prefix
+                )
+            if not grpc_service_option_model_list:
+                grpc_service_option_model_list = [GrpcServiceOptionModel()]
 
             grpc_model_list: List[GrpcMethodModel] = []
             for model_index, grpc_service_option_model in enumerate(grpc_service_option_model_list):

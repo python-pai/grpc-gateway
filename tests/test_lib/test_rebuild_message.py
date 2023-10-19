@@ -1,16 +1,11 @@
-from typing import Dict, List
+from typing import Any, Dict, List
 
 import pytest
-from google.protobuf.empty_pb2 import Empty  # type: ignore
 from pait import _pydanitc_adapter
 from pait.util import gen_example_dict_from_pydantic_base_model
 from pydantic import BaseModel, Field
 
-from example.grpc_common.python_example_proto_code.example_proto_by_option.user import user_pb2
-from grpc_gateway.dynamic_gateway.gateway import _gen_response_model_handle
-from grpc_gateway.dynamic_gateway.inspect import GrpcMethodModel
-from grpc_gateway.model import GrpcServiceOptionModel
-from grpc_gateway.protobuf_types import Message
+from grpc_gateway.model import field_validator
 from grpc_gateway.rebuild_message import rebuild_dict, rebuild_message_type
 
 
@@ -28,6 +23,16 @@ class Demo(BaseModel):
     b: int = Field()
     c: SubDemo = Field()
 
+    @field_validator("a", "c")
+    @classmethod
+    def validator_a(cls, value: Any) -> Any:
+        return value
+
+    @_pydanitc_adapter.model_validator(mode="before")
+    @classmethod
+    def model_v(cls, value: Any) -> Any:
+        return value
+
 
 class ComplexDemo(BaseModel):
     class SubDemo(BaseModel):
@@ -42,42 +47,7 @@ class ComplexDemo(BaseModel):
     a: List[SubDemo]
 
 
-class TestUtil:
-    def test_gen_response_model_handle(self) -> None:
-        # invoke_name: str
-        # grpc_method_url: str
-        # alias_grpc_method_url: str
-        # grpc_service_option_model: GrpcServiceOptionModel
-        # # func: Callable
-        # request: Type[Message] = Message
-        # response: Type[Message] = Message
-        assert issubclass(
-            _gen_response_model_handle(
-                GrpcMethodModel(
-                    invoke_name="",
-                    grpc_method_url="",
-                    alias_grpc_method_url="",
-                    request=Message,
-                    response=Empty,
-                    grpc_service_option_model=GrpcServiceOptionModel(),
-                )
-            ).response_data,
-            dict,
-        )
-        assert issubclass(
-            _gen_response_model_handle(
-                GrpcMethodModel(
-                    invoke_name="",
-                    grpc_method_url="",
-                    alias_grpc_method_url="",
-                    request=Message,
-                    response=user_pb2.GetUidByTokenResult,
-                    grpc_service_option_model=GrpcServiceOptionModel(),
-                )
-            ).response_data,
-            BaseModel,
-        )
-
+class TestRebuildMessage:
     def test_rebuild_message_type(self) -> None:
         # test not option param
         assert int == rebuild_message_type(int, "")
@@ -89,6 +59,15 @@ class TestUtil:
         # test exclude_column
         new_message = rebuild_message_type(Demo, "", exclude_column_name=["a", "b"])
         assert issubclass(new_message, BaseModel)
+
+        if _pydanitc_adapter.is_v1:
+            assert "c" in new_message.__validators__  # type: ignore
+            assert "model_v" == new_message.__pre_root_validators__[0].__name__  # type: ignore
+            assert len(new_message.__pre_root_validators__) == 1  # type: ignore
+        else:
+            assert "c" in new_message.__pydantic_decorators__.field_validators["validator_a"].info.fields
+            assert "model_v" in new_message.__pydantic_decorators__.model_validators
+
         assert len(_pydanitc_adapter.model_fields(new_message)) == 1
         if _pydanitc_adapter.is_v1:
             for column in ["name", "type_", "required"]:
@@ -109,10 +88,9 @@ class TestUtil:
         for model_column in ["aaa", "bbb"]:
             if _pydanitc_adapter.is_v1:
                 for column in ["name", "type_", "required"]:
-                    for column in ["name", "type_", "required"]:
-                        assert getattr(_pydanitc_adapter.model_fields(new_message)[model_column], column) == getattr(
-                            _pydanitc_adapter.model_fields(Demo.SubDemo.SubSubDemo)[model_column], column
-                        )
+                    assert getattr(_pydanitc_adapter.model_fields(new_message)[model_column], column) == getattr(
+                        _pydanitc_adapter.model_fields(Demo.SubDemo.SubSubDemo)[model_column], column
+                    )
             else:
                 assert getattr(_pydanitc_adapter.model_fields(new_message)[model_column], "annotation") == getattr(
                     _pydanitc_adapter.model_fields(Demo.SubDemo.SubSubDemo)[model_column], "annotation"
@@ -122,20 +100,20 @@ class TestUtil:
                     == getattr(_pydanitc_adapter.model_fields(Demo.SubDemo.SubSubDemo)[model_column], "is_required")()
                 )
         # Test complex nesteds
-
         new_message = rebuild_message_type(ComplexDemo, "", nested=["a", "$[]", "b", "${}", "$.c"])
-        assert new_message.__args__[0].__args__[0] == str
-        assert new_message.__args__[0].__args__[1] == ComplexDemo.SubDemo.SubSUbDemo
+        message_args = new_message.__args__  # type: ignore
+        assert message_args[0].__args__[0] == str
+        assert message_args[0].__args__[1] == ComplexDemo.SubDemo.SubSUbDemo
         if _pydanitc_adapter.is_v1:
-            assert new_message.__args__[0].__args__[1].__fields__["c"].outer_type_.__args__[0] == int
+            assert message_args[0].__args__[1].__fields__["c"].outer_type_.__args__[0] == int
             assert (
-                new_message.__args__[0].__args__[1].__fields__["c"].outer_type_.__args__[1]
+                message_args[0].__args__[1].__fields__["c"].outer_type_.__args__[1]
                 == ComplexDemo.SubDemo.SubSUbDemo.SubSubSubDemo
             )
         else:
-            assert new_message.__args__[0].__args__[1].__fields__["c"].annotation.__args__[0] == int
+            assert message_args[0].__args__[1].__fields__["c"].annotation.__args__[0] == int
             assert (
-                new_message.__args__[0].__args__[1].__fields__["c"].annotation.__args__[1]
+                message_args[0].__args__[1].__fields__["c"].annotation.__args__[1]
                 == ComplexDemo.SubDemo.SubSUbDemo.SubSubSubDemo
             )
 

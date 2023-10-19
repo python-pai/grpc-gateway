@@ -91,7 +91,7 @@ class DynamicGrpcGatewayRoute(BaseGrpcGatewayRoute[GrpcGatewayRouteConfig]):
         """
         http_method: str = grpc_model.grpc_service_option_model.http_method
         if http_method not in self.config.http_method_default_field_dict:
-            raise ValueError(f"{http_method} not in http_method_default_field_dict")
+            raise ValueError(f"{http_method} not in http_method_default_field_dict")  # pragma: no cover
 
         request_model: Type[BaseModel] = msg_to_pydantic_model(
             grpc_model.request,

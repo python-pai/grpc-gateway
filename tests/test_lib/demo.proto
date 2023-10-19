@@ -1,0 +1,40 @@
+syntax = "proto3";
+package my_demo;
+
+import "google/protobuf/empty.proto";
+import "demo_api.proto";
+// import "grpc_gateway/proto/api.proto";
+
+
+message DemoRequest{}
+message DemoResult{}
+
+service DemoService {
+  rpc dynamic_gateway (DemoRequest) returns (DemoResult) {
+    option (test_grpc_gateway.api.http) = {
+      group: "demo",
+      tag: [{name: "demo_tag", desc: "test protobuf tag"}],
+      summary: "This is a summary",
+      desc: "This is a desc",
+      author: ["so1n"],
+      get: { url: "/demo/dynamic-gateway"},
+    };
+  }
+  rpc use_all_attr (google.protobuf.Empty) returns (google.protobuf.Empty) {
+    option (test_grpc_gateway.api.http) = {
+      group: "demo",
+      tag: [{name: "demo_tag", desc: "test protobuf tag"}],
+      summary: "This is a summary",
+      desc: "This is a desc",
+      author: ["so1n"],
+      get: { url: "/demo/use-all-attr"},
+      additional_bindings: {
+        not_enable: true,
+        additional_bindings: {
+          any: {url: "/demo/use-all-attr-any"}
+        }
+      }
+    };
+  };
+
+}

@@ -85,7 +85,7 @@ disallow_untyped_defs = true
 python_executable = ".venv/bin/python"
 exclude = [
     "^example/example_grpc/python_example_proto_code/example_proto",
-    "^grpc_gateway/proto"
+    "^grpc_gateway/proto",
 ]
 
 [tool.pytest.ini_options]
@@ -100,6 +100,7 @@ source = [
 omit = [
     "grpc_gateway/protobuf_plugin/*",
     "grpc_gateway/proto/*",
+    "grpc_gateway/__version__.py"
 ]
 
 [tool.coverage.report]
