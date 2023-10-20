@@ -79,9 +79,9 @@ def grpc_client() -> Generator[Tuple[TestClient, Queue], None, None]:
             yield client, queue
 
 
-class TestStarletteGrpc:
+class TestFastAPI:
     def test_create_user(self) -> None:
-        from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import CreateUserRequest
+        from example.python_grpc_proto_code.example.grpc_proto.example_proto.user.user_pb2 import CreateUserRequest
 
         with grpc_client() as grpc_client_tuple:
             for url in ("/api/user/create", "/api/static/user/create"):
@@ -99,7 +99,7 @@ class TestStarletteGrpc:
                 assert message.sex == 0
 
     def test_get_book(self) -> None:
-        from example.grpc_common.python_example_proto_code.example_proto.book.manager_pb2 import GetBookRequest
+        from example.python_grpc_proto_code.example.grpc_proto.example_proto.book.manager_pb2 import GetBookRequest
 
         with grpc_client() as grpc_client_tuple:
             client, queue = grpc_client_tuple
@@ -116,7 +116,7 @@ class TestStarletteGrpc:
                 assert message.isbn == "xxxa"
 
     def test_get_book_list(self) -> None:
-        from example.grpc_common.python_example_proto_code.example_proto.book.manager_pb2 import GetBookListRequest
+        from example.python_grpc_proto_code.example.grpc_proto.example_proto.book.manager_pb2 import GetBookListRequest
 
         with grpc_client() as grpc_client_tuple:
             client, queue = grpc_client_tuple
@@ -131,7 +131,7 @@ class TestStarletteGrpc:
                 assert message.limit == 0
 
     def test_get_book_like(self) -> None:
-        from example.grpc_common.python_example_proto_code.example_proto.book.social_pb2 import (
+        from example.python_grpc_proto_code.example.grpc_proto.example_proto.book.social_pb2 import (
             GetBookLikesRequest,
             NestedGetBookLikesRequest,
         )
@@ -156,7 +156,7 @@ class TestStarletteGrpc:
                     assert message2.nested.isbn == ["xxxa", "xxxb"]
 
     def test_login(self) -> None:
-        from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import LoginUserRequest
+        from example.python_grpc_proto_code.example.grpc_proto.example_proto.user.user_pb2 import LoginUserRequest
 
         with grpc_client() as grpc_client_tuple:
             client, queue = grpc_client_tuple
@@ -168,7 +168,7 @@ class TestStarletteGrpc:
                 assert message.password == "pw"
 
     def test_logout(self) -> None:
-        from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import LogoutUserRequest
+        from example.python_grpc_proto_code.example.grpc_proto.example_proto.user.user_pb2 import LogoutUserRequest
 
         with grpc_client() as grpc_client_tuple:
             client, queue = grpc_client_tuple
@@ -180,7 +180,7 @@ class TestStarletteGrpc:
                 assert message.token == "token"
 
     def test_delete_fail_token(self) -> None:
-        from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import GetUidByTokenRequest
+        from example.python_grpc_proto_code.example.grpc_proto.example_proto.user.user_pb2 import GetUidByTokenRequest
 
         with grpc_client() as grpc_client_tuple:
             client, queue = grpc_client_tuple

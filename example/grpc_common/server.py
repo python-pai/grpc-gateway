@@ -5,20 +5,20 @@ from typing import Any, Callable, List, Optional
 import grpc
 from google.protobuf.json_format import ParseDict
 
-from example.grpc_common.python_example_proto_code.example_proto.book import manager_pb2_grpc as manager_service
-from example.grpc_common.python_example_proto_code.example_proto.book import social_pb2_grpc as social_service
-from example.grpc_common.python_example_proto_code.example_proto.other import other_pb2_grpc as other_service
-from example.grpc_common.python_example_proto_code.example_proto.user import user_pb2_grpc as user_service
-from example.grpc_common.python_example_proto_code.example_proto_by_option.book import (
+from example.python_grpc_proto_code.example.grpc_proto.example_proto.book import manager_pb2_grpc as manager_service
+from example.python_grpc_proto_code.example.grpc_proto.example_proto.book import social_pb2_grpc as social_service
+from example.python_grpc_proto_code.example.grpc_proto.example_proto.other import other_pb2_grpc as other_service
+from example.python_grpc_proto_code.example.grpc_proto.example_proto.user import user_pb2_grpc as user_service
+from example.python_grpc_proto_code.example.grpc_proto.example_proto_by_option.book import (
     manager_pb2_grpc as manager_by_option_service,
 )
-from example.grpc_common.python_example_proto_code.example_proto_by_option.book import (
+from example.python_grpc_proto_code.example.grpc_proto.example_proto_by_option.book import (
     social_pb2_grpc as social_by_option_service,
 )
-from example.grpc_common.python_example_proto_code.example_proto_by_option.other import (
+from example.python_grpc_proto_code.example.grpc_proto.example_proto_by_option.other import (
     other_pb2_grpc as other_by_option_service,
 )
-from example.grpc_common.python_example_proto_code.example_proto_by_option.user import (
+from example.python_grpc_proto_code.example.grpc_proto.example_proto_by_option.user import (
     user_pb2_grpc as user_by_option_service,
 )
 from grpc_gateway.dynamic_gateway.inspect import ParseStub

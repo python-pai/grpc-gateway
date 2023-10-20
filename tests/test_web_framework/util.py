@@ -122,17 +122,18 @@ def grpc_request_test(app: Any) -> Generator[Queue, None, None]:
     from grpc_gateway.protobuf_plugin.gateway import BaseStaticGrpcGatewayRoute
 
     grpc_gateway_route: DynamicGrpcGatewayRoute = get_app_attribute(app, "grpc_gateway_route")
+
     user_gateway_route: BaseStaticGrpcGatewayRoute = get_app_attribute(
-        app, "gateway_attr_example_proto_by_option/user/user.proto_gateway"
+        app, "gateway_attr_example/grpc_proto/example_proto_by_option/user/user.proto_gateway"
     )
     book_manager_gateway_route: BaseStaticGrpcGatewayRoute = get_app_attribute(
-        app, "gateway_attr_example_proto_by_option/book/manager.proto_gateway"
+        app, "gateway_attr_example/grpc_proto/example_proto_by_option/book/manager.proto_gateway"
     )
     book_social_gateway_route: BaseStaticGrpcGatewayRoute = get_app_attribute(
-        app, "gateway_attr_example_proto_by_option/book/social.proto_gateway"
+        app, "gateway_attr_example/grpc_proto/example_proto_by_option/book/social.proto_gateway"
     )
     other_gatewat_route: BaseStaticGrpcGatewayRoute = get_app_attribute(
-        app, "gateway_attr_example_proto_by_option/other/other.proto_gateway"
+        app, "gateway_attr_example/grpc_proto/example_proto_by_option/other/other.proto_gateway"
     )
 
     def reinit_channel(queue: Queue) -> None:

@@ -12,15 +12,15 @@ from starlette.applications import Starlette
 
 from example.common.json_formant import parse_dict
 from example.common.response_model import gen_response_model_handle
-from example.grpc_common.python_example_proto_code.example_proto.book import manager_pb2_grpc, social_pb2_grpc
-from example.grpc_common.python_example_proto_code.example_proto.other import other_pb2_grpc
-from example.grpc_common.python_example_proto_code.example_proto.user import user_pb2_grpc
-from example.grpc_common.python_example_proto_code.example_proto_by_option.book import (
+from example.python_grpc_proto_code.example.grpc_proto.example_proto.book import manager_pb2_grpc, social_pb2_grpc
+from example.python_grpc_proto_code.example.grpc_proto.example_proto.other import other_pb2_grpc
+from example.python_grpc_proto_code.example.grpc_proto.example_proto.user import user_pb2_grpc
+from example.python_grpc_proto_code.example.grpc_proto.example_proto_by_option.book import (
     manager_pait_route,
     social_pait_route,
 )
-from example.grpc_common.python_example_proto_code.example_proto_by_option.other import other_pait_route
-from example.grpc_common.python_example_proto_code.example_proto_by_option.user import user_pait_route
+from example.python_grpc_proto_code.example.grpc_proto.example_proto_by_option.other import other_pait_route
+from example.python_grpc_proto_code.example.grpc_proto.example_proto_by_option.user import user_pait_route
 from example.starlette_example.utils import create_app
 from grpc_gateway.dynamic_gateway.gateway import AsyncGrpcGatewayRoute as GrpcGatewayRoute
 from grpc_gateway.dynamic_gateway.gateway import GrpcGatewayRouteConfig
@@ -34,7 +34,7 @@ def add_grpc_gateway_route(app: Starlette) -> None:
     from typing import Callable, Type
     from uuid import uuid4
 
-    from example.grpc_common.python_example_proto_code.example_proto.user import user_pb2
+    from example.python_grpc_proto_code.example.grpc_proto.example_proto.user import user_pb2
     from grpc_gateway.dynamic_gateway.inspect import GrpcMethodModel
     from grpc_gateway.protobuf_types import Message
 

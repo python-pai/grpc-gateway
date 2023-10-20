@@ -49,7 +49,7 @@ def base_test() -> Generator[BaseTest, None, None]:
 
 class TestSanicGrpc:
     def test_create_user(self) -> None:
-        from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import CreateUserRequest
+        from example.python_grpc_proto_code.example.grpc_proto.example_proto.user.user_pb2 import CreateUserRequest
 
         with client_ctx() as client:
             for url in ("/api/user/create", "/api/static/user/create"):
@@ -67,7 +67,7 @@ class TestSanicGrpc:
                     assert message.sex == 0
 
     def test_get_book(self) -> None:
-        from example.grpc_common.python_example_proto_code.example_proto.book.manager_pb2 import GetBookRequest
+        from example.python_grpc_proto_code.example.grpc_proto.example_proto.book.manager_pb2 import GetBookRequest
 
         with client_ctx() as client:
             for url in (
@@ -86,7 +86,7 @@ class TestSanicGrpc:
                     assert message.isbn == "xxxa"
 
     def test_get_book_list(self) -> None:
-        from example.grpc_common.python_example_proto_code.example_proto.book.manager_pb2 import GetBookListRequest
+        from example.python_grpc_proto_code.example.grpc_proto.example_proto.book.manager_pb2 import GetBookListRequest
 
         with client_ctx() as client:
             for url in (
@@ -103,7 +103,7 @@ class TestSanicGrpc:
                     assert message.limit == 0
 
     def test_get_book_like(self) -> None:
-        from example.grpc_common.python_example_proto_code.example_proto.book.social_pb2 import (
+        from example.python_grpc_proto_code.example.grpc_proto.example_proto.book.social_pb2 import (
             GetBookLikesRequest,
             NestedGetBookLikesRequest,
         )
@@ -127,7 +127,7 @@ class TestSanicGrpc:
                         assert message2.nested.isbn == ["xxxa", "xxxb"]
 
     def test_login(self) -> None:
-        from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import LoginUserRequest
+        from example.python_grpc_proto_code.example.grpc_proto.example_proto.user.user_pb2 import LoginUserRequest
 
         with client_ctx() as client:
             for url in ("/api/user/login", "/api/static/user/login"):
@@ -139,7 +139,7 @@ class TestSanicGrpc:
                     assert message.password == "pw"
 
     def test_logout(self) -> None:
-        from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import LogoutUserRequest
+        from example.python_grpc_proto_code.example.grpc_proto.example_proto.user.user_pb2 import LogoutUserRequest
 
         with client_ctx() as client:
             for url in ("/api/user/logout", "/api/static/user/logout"):
@@ -151,7 +151,7 @@ class TestSanicGrpc:
                     assert message.token == "token"
 
     def test_delete_fail_token(self) -> None:
-        from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import GetUidByTokenRequest
+        from example.python_grpc_proto_code.example.grpc_proto.example_proto.user.user_pb2 import GetUidByTokenRequest
 
         with client_ctx() as client:
             for url in ("/api/user/delete", "/api/static/user/delete"):

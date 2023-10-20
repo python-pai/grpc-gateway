@@ -13,6 +13,6 @@ class TestProtoGen:
 
     def test_api_proto(self) -> None:
         assert filecmp.cmp(
-            project_path + "/example/grpc_common/example_proto_by_option/common/api.proto",
+            project_path + "/example/grpc_proto/example_proto_by_option/common/api.proto",
             project_path + "/grpc_gateway/proto/api.proto",
         )

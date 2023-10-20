@@ -17,8 +17,11 @@ class BaseTest(object):
     def grpc_openapi_by_protobuf_file(app: Any, grpc_gateway_route: Type[DynamicGrpcGatewayRoute]) -> None:
         import os
 
-        from example.grpc_common.python_example_proto_code.example_proto.book import manager_pb2_grpc, social_pb2_grpc
-        from example.grpc_common.python_example_proto_code.example_proto.user import user_pb2_grpc
+        from example.python_grpc_proto_code.example.grpc_proto.example_proto.book import (
+            manager_pb2_grpc,
+            social_pb2_grpc,
+        )
+        from example.python_grpc_proto_code.example.grpc_proto.example_proto.user import user_pb2_grpc
 
         project_path: str = os.getcwd().split("pait/")[0]
         if project_path.endswith("pait"):
@@ -50,11 +53,11 @@ class BaseTest(object):
 
     @staticmethod
     def grpc_openapi_by_option(app: Any, grpc_gateway_route: Type[DynamicGrpcGatewayRoute]) -> None:
-        from example.grpc_common.python_example_proto_code.example_proto_by_option.book import (
+        from example.python_grpc_proto_code.example.grpc_proto.example_proto_by_option.book import (
             manager_pb2_grpc,
             social_pb2_grpc,
         )
-        from example.grpc_common.python_example_proto_code.example_proto_by_option.user import user_pb2_grpc
+        from example.python_grpc_proto_code.example.grpc_proto.example_proto_by_option.user import user_pb2_grpc
 
         prefix: str = "/api-test-by-option"
 

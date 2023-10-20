@@ -42,7 +42,7 @@ class TestTornadoGrpc(BaseTestTornado):
     #     grpc_request_test(self._app, _)
     #
     def test_create_user(self) -> None:
-        from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import CreateUserRequest
+        from example.python_grpc_proto_code.example.grpc_proto.example_proto.user.user_pb2 import CreateUserRequest
 
         self.setUp()
 
@@ -64,7 +64,7 @@ class TestTornadoGrpc(BaseTestTornado):
                 assert message.sex == 0
 
     def test_get_book(self) -> None:
-        from example.grpc_common.python_example_proto_code.example_proto.book.manager_pb2 import GetBookRequest
+        from example.python_grpc_proto_code.example.grpc_proto.example_proto.book.manager_pb2 import GetBookRequest
 
         self.setUp()
 
@@ -82,7 +82,7 @@ class TestTornadoGrpc(BaseTestTornado):
                 assert message.isbn == "xxxa"
 
     def test_get_book_list(self) -> None:
-        from example.grpc_common.python_example_proto_code.example_proto.book.manager_pb2 import GetBookListRequest
+        from example.python_grpc_proto_code.example.grpc_proto.example_proto.book.manager_pb2 import GetBookListRequest
 
         self.setUp()
 
@@ -101,7 +101,7 @@ class TestTornadoGrpc(BaseTestTornado):
                 assert message.limit == 0
 
     def test_get_book_like(self) -> None:
-        from example.grpc_common.python_example_proto_code.example_proto.book.social_pb2 import (
+        from example.python_grpc_proto_code.example.grpc_proto.example_proto.book.social_pb2 import (
             GetBookLikesRequest,
             NestedGetBookLikesRequest,
         )
@@ -129,7 +129,7 @@ class TestTornadoGrpc(BaseTestTornado):
                     assert message2.nested.isbn == ["xxxa", "xxxb"]
 
     def test_login(self) -> None:
-        from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import LoginUserRequest
+        from example.python_grpc_proto_code.example.grpc_proto.example_proto.user.user_pb2 import LoginUserRequest
 
         self.setUp()
         grpc_route.add_grpc_gateway_route(self._app)
@@ -143,7 +143,7 @@ class TestTornadoGrpc(BaseTestTornado):
                 assert message.password == "pw"
 
     def test_logout(self) -> None:
-        from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import LogoutUserRequest
+        from example.python_grpc_proto_code.example.grpc_proto.example_proto.user.user_pb2 import LogoutUserRequest
 
         self.setUp()
         grpc_route.add_grpc_gateway_route(self._app)
@@ -157,7 +157,7 @@ class TestTornadoGrpc(BaseTestTornado):
                 assert message.token == "token"
 
     def test_delete_fail_token(self) -> None:
-        from example.grpc_common.python_example_proto_code.example_proto.user.user_pb2 import GetUidByTokenRequest
+        from example.python_grpc_proto_code.example.grpc_proto.example_proto.user.user_pb2 import GetUidByTokenRequest
 
         self.setUp()
 

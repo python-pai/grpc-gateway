@@ -1,7 +1,7 @@
 from google.protobuf.empty_pb2 import Empty  # type: ignore
 from pydantic import BaseModel
 
-from example.grpc_common.python_example_proto_code.example_proto_by_option.user import user_pb2
+from example.python_grpc_proto_code.example.grpc_proto.example_proto_by_option.user import user_pb2
 from grpc_gateway.dynamic_gateway.gateway import _gen_response_model_handle
 from grpc_gateway.dynamic_gateway.inspect import GrpcMethodModel
 from grpc_gateway.model import GrpcServiceOptionModel
