@@ -16,9 +16,9 @@ packages = [{include = "grpc_gateway"}]
 "Documentation" = "https://so1n.me/pait/"
 
 [tool.poetry.dependencies]
-python = "^3.8"
-pait = "1.0.0a13"
-protobuf-to-pydantic = "^0.2.0.3"
+python = "^3.8.1"
+pait = "1.0.0a14"
+protobuf-to-pydantic = "^0.2.1"
 jinja2 = {version = ">=2.0.0", optional = true}
 
 [tool.poetry.extras]
@@ -90,7 +90,10 @@ exclude = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::UserWarning",
+]
 [tool.coverage.run]
 branch = true
 source = [

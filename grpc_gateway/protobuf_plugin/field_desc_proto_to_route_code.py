@@ -1,7 +1,7 @@
 import logging
 from dataclasses import asdict
 from textwrap import dedent
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Tuple
 
 from jinja2 import Template
 from mypy_protobuf.main import Descriptors
@@ -43,21 +43,19 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
     {% else %}
         request_msg: {{request_message_name}} = gateway.msg_from_dict_handle(
             {{request_message_name}},
+        {% if pydantic_is_v1 %}
             request_pydantic_model.dict(),
+        {% else %}
+            request_pydantic_model.model_dump(),
+        {% endif %}
             {{gen_code._get_value_code(grpc_service_option_model.request_message.nested)}}
         )
     {% endif %}
     {% if is_async %}
-        loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
-        if loop != getattr(gateway.{{stub_service_name}}.{{method}}, "_loop", None):
-            raise RuntimeError(
-                "Loop is not same, "
-                "the grpc channel must be initialized after the event loop of the api server is initialized"
-            )
-        else:
-            grpc_msg: {{response_message_name}} = await gateway.{{stub_service_name}}.{{method}}(
-                request_msg
-            )
+        gateway.check_event_loop(gateway.{{stub_service_name}}.{{method}})
+        grpc_msg: {{response_message_name}} = await gateway.{{stub_service_name}}.{{method}}(
+            request_msg
+        )
     {% else %}
         grpc_msg: {{response_message_name}} = gateway.{{stub_service_name}}.{{method}}(request_msg)
     {% endif %}
@@ -113,64 +111,38 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
 
     def get_response_code(self, grpc_model: GrpcTemplateVarModel, template_dict: dict) -> str:
         """Can customize the template that generates the response according to different methods"""
-        response_class_str: str = Template(
-            self.response_jinja_template_str, trim_blocks=True, lstrip_blocks=True
-        ).render(**template_dict)
-        return response_class_str
+        return Template(self.response_jinja_template_str, trim_blocks=True, lstrip_blocks=True).render(**template_dict)
 
     def get_pait_code(self, tab_str: str, pait_name: str, grpc_model: GrpcTemplateVarModel) -> str:
+        option_model = grpc_model.grpc_service_option_model
         # can't change tab_str, pait_name value
         tag_str_list: List[str] = [
             f'Tag("{tag}", "{desc}")'
-            for tag, desc in grpc_model.grpc_service_option_model.tag
-            + [("grpc" + "-" + grpc_model.grpc_method_url.split("/")[1].split(".")[0], "")]
+            for tag, desc in option_model.tag + [("grpc" + "-" + grpc_model.grpc_method_url.split("/")[1].split(".")[0], "")]
         ]
         tag_str_list.append("self._grpc_tag")
+        name = '"' + option_model.name + '"' if option_model.name else None
+        desc = '"' + option_model.desc + '"' if option_model.desc else None
+        summary = '"' + option_model.summary + '"' if option_model.summary else None
         return (
             f"{tab_str * 2}{pait_name}: Pait = self._pait.create_sub_pait(\n"
-            f"{tab_str * 3}author={self._get_value_code(grpc_model.grpc_service_option_model.author, sort=False)},\n"
-            f'{tab_str * 3}name="{grpc_model.grpc_service_option_model.name}",\n'
-            f"{tab_str * 3}group={self._get_value_code(grpc_model.grpc_service_option_model.group, sort=False)},\n"
-            f"{tab_str * 3}append_tag=({','.join(tag_str_list)},),\n"
-            f'{tab_str * 3}desc="{grpc_model.grpc_service_option_model.desc}",\n'
-            f'{tab_str * 3}summary="{grpc_model.grpc_service_option_model.summary}",\n'
+            f"{tab_str * 3}append_author={self._get_value_code(option_model.author or None)},\n"
+            f'{tab_str * 3}name={name},\n'
+            f"{tab_str * 3}group={self._get_value_code(option_model.group or None)},\n"
+            f"{tab_str * 3}append_tag=({', '.join(tag_str_list) if tag_str_list else None},),\n"
+            f'{tab_str * 3}desc={desc},\n'
+            f'{tab_str * 3}summary={summary},\n'
             f"{tab_str * 3}default_field_class="
-            f'{"field.Query" if grpc_model.grpc_service_option_model.http_method == "GET" else "field.Body"},\n'
-            f"{tab_str * 3}response_model_list=[{grpc_model.response_class_name}] + response_model_list ,\n"
+            f'{"field.Query" if grpc_model.grpc_service_option_model.http_method == "GET" else "field.Json"},\n'
+            f"{tab_str * 3}response_model_list=[{grpc_model.response_class_name}] + response_model_list,\n"
             f"{tab_str * 2})"
         )
 
-    def _parse_field_descriptor(self) -> None:
-        tab_str: str = self.indent * " "
-        model_module_name = self._fd.name.split("/")[-1].replace(".proto", self.config.file_name_suffix)
-        message_module_name = self._fd.name.split("/")[-1].replace(".proto", "_pb2")
-        stub_module_name = self._fd.name.split("/")[-1].replace(".proto", "_pb2_grpc")
-
-        self._add_import_code("asyncio")
-        self._add_import_code("pait", "field")
-        self._add_import_code("pait.app.any", "SimpleRoute")
-        self._add_import_code("pait.app.any", "set_app_attribute")
-        self._add_import_code("pait.core", "Pait")
-        self._add_import_code("pait.g", "pait_context")
-        self._add_import_code("grpc_gateway.protobuf_plugin.gateway", "BaseStaticGrpcGatewayRoute")
-        self._add_import_code("pait.model.tag", "Tag")
-        self._add_import_code("pait.model.response", "BaseResponseModel")
-        self._add_import_code("pait.model.response", "JsonResponseModel")
-        self._add_import_code("pydantic", "BaseModel")
-        self._add_import_code("typing", "Any")
-        self._add_import_code("typing", "Callable")
-        self._add_import_code("typing", "List")
-        self._add_import_code("typing", "Type")
-
-        self._add_import_code(".", model_module_name)
-        self._add_import_code(".", message_module_name)
-        self._add_import_code(".", stub_module_name)
-
-        ##########################################################
-        # Extract information in preparation for code generation #
-        ##########################################################
+    def extra_data_by_fd(
+        self, model_module_name: str, message_module_name: str, stub_module_name: str
+    ) -> Tuple[List[GrpcTemplateVarModel], List[str]]:
         service_name_list: list = []
-        grpc_model_list: List[GrpcTemplateVarModel] = []
+        grpc_template_var_model_list: List[GrpcTemplateVarModel] = []
         for service in self._fd.service:
             for method in service.method:
                 func_name: str = f"{method.name}_route"
@@ -198,64 +170,39 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
                     # rebuild Message #
                     ###################
                     # Generating code directly would be very cumbersome, so here is a simplification
-                    if (
-                        grpc_service_option_model.request_message.exclude_column_name
-                        or grpc_service_option_model.request_message.nested
-                    ) and input_type_name != "Empty":
-                        exclude_column_name_str = self._get_value_code(
-                            grpc_service_option_model.request_message.exclude_column_name
-                        )
-                        nested_str = self._get_value_code(grpc_service_option_model.request_message.nested, sort=False)
-
-                        # self._add_import_code(f".{model_module_name}", input_type_name)
+                    r_message_model_name_list = [request_message_model_name, response_message_model_name]
+                    for request_build_message, i_o_type_name in [
+                        (grpc_service_option_model.request_message, input_type_name),
+                        (grpc_service_option_model.response_message, output_type_name)
+                    ]:
+                        if not(
+                            (
+                                request_build_message.exclude_column_name or request_build_message.nested
+                            ) and i_o_type_name != "Empty"
+                        ):
+                            continue
+                        exclude_column_name_str = self._get_value_code(request_build_message.exclude_column_name)
+                        nested_str = self._get_value_code(request_build_message.nested, sort=False)
+                        r_message_model_name = f"{i_o_type_name}{''.join([i.title() for i in func_name.split('_')])}"
+                        if i_o_type_name == input_type_name:
+                            r_message_model_name_list[0] = r_message_model_name
+                        else:
+                            r_message_model_name_list[1] = r_message_model_name
+                        self._add_import_code(f".{model_module_name}", i_o_type_name, f" as {r_message_model_name}")
                         self._add_import_code("grpc_gateway.rebuild_message", "rebuild_message_type")
-                        request_message_model_name = (
-                            f"{input_type_name}{''.join([i.title() for i in func_name.split('_')])}"
-                        )
-                        self._add_import_code(
-                            f".{model_module_name}", input_type_name, f" as {request_message_model_name}"
-                        )
                         self._content_deque.append(
                             dedent(
                                 f"""
-                            {request_message_model_name} = rebuild_message_type(  # type: ignore[misc]
-                                {request_message_model_name},
-                                "{func_name}",
-                                exclude_column_name={exclude_column_name_str},
-                                nested={nested_str},
-                            )
-                            """
-                            )
-                        )
-                    if (
-                        grpc_service_option_model.response_message.exclude_column_name
-                        or grpc_service_option_model.response_message.nested
-                    ) and output_type_name != "Empty":
-                        # self._add_import_code(f".{model_module_name}", output_type_name)
-                        self._add_import_code("grpc_gateway.rebuild_message", "rebuild_message_type")
-                        exclude_column_name_str = self._get_value_code(
-                            grpc_service_option_model.response_message.exclude_column_name, sort=False
-                        )
-                        nested_str = self._get_value_code(grpc_service_option_model.response_message.nested, sort=False)
-                        response_message_model_name = (
-                            f"{output_type_name}{''.join([i.title() for i in func_name.split('_')])}"
-                        )
-                        self._add_import_code(
-                            f".{model_module_name}", output_type_name, f" as {response_message_model_name}"
-                        )
-                        self._content_deque.append(
-                            dedent(
-                                f"""
-                            {response_message_model_name} = rebuild_message_type(  # type: ignore[misc]
-                                {response_message_model_name},
-                                "{func_name}",
-                                exclude_column_name={exclude_column_name_str},
-                                nested={nested_str},
-                            )
-                            """
+                                {r_message_model_name} = rebuild_message_type(  # type: ignore[misc]
+                                    {r_message_model_name},
+                                    "{func_name}",
+                                    exclude_column_name={exclude_column_name_str},
+                                    nested={nested_str},
+                                )
+                                """
                             )
                         )
-                    grpc_model_list.append(
+                    grpc_template_var_model_list.append(
                         GrpcTemplateVarModel(
                             index=model_index,
                             attr_prefix=self.attr_prefix,
@@ -265,10 +212,10 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
                             func_name=func_name,
                             input_type_name=input_type_name,
                             output_type_name=output_type_name,
-                            request_message_model_name=request_message_model_name
+                            request_message_model_name=r_message_model_name_list[0]
                             if input_type_name not in ("Empty",)
                             else input_type_name,
-                            response_message_model_name=response_message_model_name
+                            response_message_model_name=r_message_model_name_list[1]
                             if output_type_name not in ("Empty",)
                             else output_type_name,
                             request_message_name=f"{message_module_name}.{input_type_name}"
@@ -293,7 +240,36 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
                             gen_code=self,
                         )
                     )
+        return grpc_template_var_model_list, service_name_list
 
+    def _parse_field_descriptor(self) -> None:
+        tab_str: str = self.indent * " "
+        model_module_name = self._fd.name.split("/")[-1].replace(".proto", self.config.file_name_suffix)
+        message_module_name = self._fd.name.split("/")[-1].replace(".proto", "_pb2")
+        stub_module_name = self._fd.name.split("/")[-1].replace(".proto", "_pb2_grpc")
+
+        self._add_import_code("pait", "field")
+        self._add_import_code("pait.app.any", "SimpleRoute")
+        self._add_import_code("pait.app.any", "set_app_attribute")
+        self._add_import_code("pait.core", "Pait")
+        self._add_import_code("pait.g", "pait_context")
+        self._add_import_code("grpc_gateway.protobuf_plugin.gateway", "BaseStaticGrpcGatewayRoute")
+        self._add_import_code("pait.model.tag", "Tag")
+        self._add_import_code("pait.model.response", "BaseResponseModel")
+        self._add_import_code("pait.model.response", "JsonResponseModel")
+        self._add_import_code("pydantic", "BaseModel")
+        self._add_import_code("typing", "Any")
+        self._add_import_code("typing", "Callable")
+        self._add_import_code("typing", "List")
+        self._add_import_code("typing", "Type")
+
+        self._add_import_code(".", model_module_name)
+        self._add_import_code(".", message_module_name)
+        self._add_import_code(".", stub_module_name)
+
+        grpc_template_var_model_list, service_name_list = self.extra_data_by_fd(
+            model_module_name, message_module_name, stub_module_name
+        )
         #######################################################################
         # Refine the information through the GRPC model and generate the code #
         #######################################################################
@@ -303,44 +279,45 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
         simple_route_str_list: List[str] = []
         wrapper_route_str_list = []
 
-        for grpc_model in grpc_model_list:
+        for grpc_template_var_model in grpc_template_var_model_list:
             # Specifies that the data is not parsed and skipped
-            grpc_service_option_model = grpc_model.grpc_service_option_model
+            grpc_service_option_model = grpc_template_var_model.grpc_service_option_model
             if not grpc_service_option_model.enable:
                 continue
 
-            # Generate the data needed by `pait`
-            self._add_import_code("pait.model.tag", "Tag")
-
-            if grpc_model.index == 0:
+            if grpc_template_var_model.index == 0:
                 # The response model code only needs to be generated once
-                template_dict: dict = asdict(grpc_model)
-                response_code_str_list.append(self.get_response_code(grpc_model, template_dict) + "\n")
+                template_dict: dict = asdict(grpc_template_var_model)
+                response_code_str_list.append(self.get_response_code(grpc_template_var_model, template_dict) + "\n")
 
-            base_func_name: str = grpc_model.func_name
-            if grpc_model.index:
-                base_func_name = base_func_name + "_" + str(grpc_model.index)
+            base_func_name: str = grpc_template_var_model.func_name
+            if grpc_template_var_model.index:
+                base_func_name = base_func_name + "_" + str(grpc_template_var_model.index)
             pait_name: str = base_func_name + "_pait"
-            wrapper_route_str_list.append(self.get_pait_code(tab_str, pait_name, grpc_model))
+            # gen create pait instance code
+            wrapper_route_str_list.append(self.get_pait_code(tab_str, pait_name, grpc_template_var_model))
+
             for is_async in [True, False]:
-                if grpc_model.index == 0:
+                if grpc_template_var_model.index == 0:
                     # The routing function only needs to be generated once
-                    template_dict = asdict(grpc_model)
+                    template_dict = asdict(grpc_template_var_model)
                     template_dict["is_async"] = is_async
                     if is_async:
                         template_dict["func_name"] = "async_" + template_dict["func_name"]
-                    route_code_str_list.append(self.get_route_code(grpc_model, template_dict) + "\n")
-                func_name = grpc_model.func_name
+                    route_code_str_list.append(self.get_route_code(grpc_template_var_model, template_dict) + "\n")
+
+                # gen sub pait instance code
+                func_name = grpc_template_var_model.func_name
                 if is_async:
                     func_name = "async_" + func_name
                 real_func_name: str = "pait_" + func_name
-                if grpc_model.index:
-                    real_func_name += "_" + str(grpc_model.index)
+                if grpc_template_var_model.index:
+                    real_func_name += "_" + str(grpc_template_var_model.index)
                 wrapper_route_str_list.append(
-                    f'{tab_str * 2}{real_func_name} = {pait_name}(feature_code="{grpc_model.index}")({func_name})'
+                    f'{tab_str * 2}{real_func_name} = {pait_name}(feature_code="{grpc_template_var_model.index}")({func_name})'
                 )
 
-                if grpc_model.index:
+                if grpc_template_var_model.index:
                     wrapper_route_str_list.append(
                         f'{tab_str * 2}{real_func_name}.__name__ = "{real_func_name}"\n'
                         f"{tab_str * 2}{real_func_name}.__qualname__ = "
@@ -366,6 +343,7 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
             f"{tab_str * 1}stub_str_list: List[str] = {self._get_value_code(stub_service_name_list, sort=False)}\n"
         )
         gateway_class_str: str = (
+            "\n"
             f"class {self.gateway_name}(BaseStaticGrpcGatewayRoute):\n"
             f"{class_stub_str}\n"
             f"{tab_str * 1}def gen_route(self) -> None:\n"
@@ -378,7 +356,7 @@ class FileDescriptorProtoToRouteCode(BaseP2C):
             f"{(',' + chr(10)).join(simple_route_str_list) + ',' if simple_route_str_list else ''}\n"
             f"{tab_str * 3}prefix=self.config.prefix,\n"
             f"{tab_str * 3}title=self.config.title,\n"
-            f"{tab_str * 3}** self._add_multi_simple_route_kwargs \n"
+            f"{tab_str * 3}**self._add_multi_simple_route_kwargs \n"
             f"{tab_str * 2})\n"
         )
         logger.debug(gateway_class_str)

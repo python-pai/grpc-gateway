@@ -86,7 +86,6 @@ class ParseStub(object):
         self._stub: Any = stub
         self.name: str = self._stub.__name__
         self._method_list_dict: Dict[str, List[GrpcMethodModel]] = {}
-        self._filename_desc_dict: Dict[str, Dict[str, Dict[str, str]]] = {}
         self._comment_prefix: str = comment_prefix
 
         self._parse()

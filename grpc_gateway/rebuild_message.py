@@ -1,8 +1,8 @@
 import inspect
 from typing import Any, Dict, List, Optional, Tuple, Type, _GenericAlias  # type: ignore[attr-defined]
 
+from any_api.util.pydantic_adapter import create_pydantic_model
 from pait import _pydanitc_adapter
-from pait.util import create_pydantic_model
 from pydantic import BaseModel
 
 from grpc_gateway.model import field_validator

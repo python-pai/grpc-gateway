@@ -2,7 +2,7 @@ from google.protobuf.empty_pb2 import Empty  # type: ignore
 from pydantic import BaseModel
 
 from example.python_grpc_proto_code.example.grpc_proto.example_proto_by_option.user import user_pb2
-from grpc_gateway.dynamic_gateway.gateway import _gen_response_model_handle
+from grpc_gateway.dynamic_gateway.gateway import _gen_response_model_handle, msg_to_pydantic_model
 from grpc_gateway.dynamic_gateway.inspect import GrpcMethodModel
 from grpc_gateway.model import GrpcServiceOptionModel
 from grpc_gateway.protobuf_types import Message
@@ -26,7 +26,8 @@ class TestUtil:
                     request=Message,
                     response=Empty,
                     grpc_service_option_model=GrpcServiceOptionModel(),
-                )
+                ),
+                dict,
             ).response_data,
             dict,
         )
@@ -39,7 +40,8 @@ class TestUtil:
                     request=Message,
                     response=user_pb2.GetUidByTokenResult,
                     grpc_service_option_model=GrpcServiceOptionModel(),
-                )
+                ),
+                msg_to_pydantic_model(user_pb2.GetUidByTokenResult),
             ).response_data,
             BaseModel,
         )

@@ -69,7 +69,7 @@ def grpc_test_openapi(app: Any, url_prefix: str = "/api", option_str: str = "") 
                 "$ref"
             ]
             response_schema: dict = pait_openapi.dict["components"]["schemas"][response_schema_key.split("/")[-1]]
-            assert response_schema["properties"]["data"]["allOf"][0]["$ref"].endswith("LoginUserResult")
+            assert "LoginUserResult" in response_schema["properties"]["data"]["allOf"][0]["$ref"]
             # assert response_schema["title"].endswith("LoginUserResult")
             for column in ["code", "msg", "data"]:
                 assert column in response_schema["properties"]
@@ -116,7 +116,7 @@ def grpc_test_openapi(app: Any, url_prefix: str = "/api", option_str: str = "") 
 
 @contextmanager
 def grpc_request_test(app: Any) -> Generator[Queue, None, None]:
-    from pait.app import get_app_attribute
+    from pait.app.any import get_app_attribute
 
     from grpc_gateway.dynamic_gateway.gateway import AsyncGrpcGatewayRoute, DynamicGrpcGatewayRoute
     from grpc_gateway.protobuf_plugin.gateway import BaseStaticGrpcGatewayRoute

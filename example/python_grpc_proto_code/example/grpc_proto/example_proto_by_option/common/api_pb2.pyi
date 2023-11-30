@@ -88,9 +88,7 @@ class ApiRule(google.protobuf.message.Message):
     """
 
     @property
-    def additional_bindings(
-        self,
-    ) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___ApiRule]:
+    def additional_bindings(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___ApiRule]:
         """Additional HTTP bindings for the selector. Nested bindings must
         not contain an `additional_bindings` field themselves (that is,
         the nesting may only be one level deep).
@@ -122,8 +120,7 @@ class ApiRule(google.protobuf.message.Message):
         pass
     @property
     def response_message(self) -> global___BuildMessage: ...
-    def __init__(
-        self,
+    def __init__(self,
         *,
         get: typing.Optional[global___HttpMethod] = ...,
         put: typing.Optional[global___HttpMethod] = ...,
@@ -143,84 +140,14 @@ class ApiRule(google.protobuf.message.Message):
         author: typing.Optional[typing.Iterable[typing.Text]] = ...,
         request_message: typing.Optional[global___BuildMessage] = ...,
         response_message: typing.Optional[global___BuildMessage] = ...,
-    ) -> None: ...
-    def HasField(
-        self,
-        field_name: typing_extensions.Literal[
-            "any",
-            b"any",
-            "custom",
-            b"custom",
-            "delete",
-            b"delete",
-            "get",
-            b"get",
-            "http_method",
-            b"http_method",
-            "patch",
-            b"patch",
-            "post",
-            b"post",
-            "put",
-            b"put",
-            "request_message",
-            b"request_message",
-            "response_message",
-            b"response_message",
-        ],
-    ) -> builtins.bool: ...
-    def ClearField(
-        self,
-        field_name: typing_extensions.Literal[
-            "additional_bindings",
-            b"additional_bindings",
-            "any",
-            b"any",
-            "author",
-            b"author",
-            "body",
-            b"body",
-            "custom",
-            b"custom",
-            "delete",
-            b"delete",
-            "desc",
-            b"desc",
-            "get",
-            b"get",
-            "group",
-            b"group",
-            "http_method",
-            b"http_method",
-            "not_enable",
-            b"not_enable",
-            "patch",
-            b"patch",
-            "post",
-            b"post",
-            "put",
-            b"put",
-            "request_message",
-            b"request_message",
-            "response_body",
-            b"response_body",
-            "response_message",
-            b"response_message",
-            "summary",
-            b"summary",
-            "tag",
-            b"tag",
-        ],
-    ) -> None: ...
-    def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["http_method", b"http_method"]
-    ) -> typing.Optional[typing_extensions.Literal["get", "put", "post", "delete", "patch", "custom", "any"]]: ...
-
+        ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["any",b"any","custom",b"custom","delete",b"delete","get",b"get","http_method",b"http_method","patch",b"patch","post",b"post","put",b"put","request_message",b"request_message","response_message",b"response_message"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["additional_bindings",b"additional_bindings","any",b"any","author",b"author","body",b"body","custom",b"custom","delete",b"delete","desc",b"desc","get",b"get","group",b"group","http_method",b"http_method","not_enable",b"not_enable","patch",b"patch","post",b"post","put",b"put","request_message",b"request_message","response_body",b"response_body","response_message",b"response_message","summary",b"summary","tag",b"tag"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["http_method",b"http_method"]) -> typing.Optional[typing_extensions.Literal["get","put","post","delete","patch","custom","any"]]: ...
 global___ApiRule = ApiRule
 
 class CustomHttpPattern(google.protobuf.message.Message):
     """A custom pattern is used for defining custom HTTP verb."""
-
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
     KIND_FIELD_NUMBER: builtins.int
     PATH_FIELD_NUMBER: builtins.int
@@ -232,15 +159,13 @@ class CustomHttpPattern(google.protobuf.message.Message):
     def path(self) -> global___HttpMethod:
         """The path matched by this custom verb."""
         pass
-    def __init__(
-        self,
+    def __init__(self,
         *,
         kind: typing.Optional[global___HttpMethod] = ...,
         path: typing.Optional[global___HttpMethod] = ...,
-    ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["kind", b"kind", "path", b"path"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["kind", b"kind", "path", b"path"]) -> None: ...
-
+        ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["kind",b"kind","path",b"path"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["kind",b"kind","path",b"path"]) -> None: ...
 global___CustomHttpPattern = CustomHttpPattern
 
 class Tag(google.protobuf.message.Message):
@@ -249,14 +174,12 @@ class Tag(google.protobuf.message.Message):
     DESC_FIELD_NUMBER: builtins.int
     name: typing.Text
     desc: typing.Text
-    def __init__(
-        self,
+    def __init__(self,
         *,
         name: typing.Text = ...,
         desc: typing.Text = ...,
-    ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["desc", b"desc", "name", b"name"]) -> None: ...
-
+        ) -> None: ...
+    def ClearField(self, field_name: typing_extensions.Literal["desc",b"desc","name",b"name"]) -> None: ...
 global___Tag = Tag
 
 class HttpMethod(google.protobuf.message.Message):
@@ -272,22 +195,14 @@ class HttpMethod(google.protobuf.message.Message):
     default: builtins.bool
     """If the value is True, the url is the url corresponding to the rpc method"""
 
-    def __init__(
-        self,
+    def __init__(self,
         *,
         url: typing.Text = ...,
         default: builtins.bool = ...,
-    ) -> None: ...
-    def HasField(
-        self, field_name: typing_extensions.Literal["default", b"default", "http_url", b"http_url", "url", b"url"]
-    ) -> builtins.bool: ...
-    def ClearField(
-        self, field_name: typing_extensions.Literal["default", b"default", "http_url", b"http_url", "url", b"url"]
-    ) -> None: ...
-    def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["http_url", b"http_url"]
-    ) -> typing.Optional[typing_extensions.Literal["url", "default"]]: ...
-
+        ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["default",b"default","http_url",b"http_url","url",b"url"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["default",b"default","http_url",b"http_url","url",b"url"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["http_url",b"http_url"]) -> typing.Optional[typing_extensions.Literal["url","default"]]: ...
 global___HttpMethod = HttpMethod
 
 class BuildMessage(google.protobuf.message.Message):
@@ -316,32 +231,16 @@ class BuildMessage(google.protobuf.message.Message):
        }
     """
 
-    def __init__(
-        self,
+    def __init__(self,
         *,
         exclude_column_name: typing.Text = ...,
         nested: typing.Text = ...,
-    ) -> None: ...
-    def HasField(
-        self,
-        field_name: typing_extensions.Literal[
-            "action", b"action", "exclude_column_name", b"exclude_column_name", "nested", b"nested"
-        ],
-    ) -> builtins.bool: ...
-    def ClearField(
-        self,
-        field_name: typing_extensions.Literal[
-            "action", b"action", "exclude_column_name", b"exclude_column_name", "nested", b"nested"
-        ],
-    ) -> None: ...
-    def WhichOneof(
-        self, oneof_group: typing_extensions.Literal["action", b"action"]
-    ) -> typing.Optional[typing_extensions.Literal["exclude_column_name", "nested"]]: ...
-
+        ) -> None: ...
+    def HasField(self, field_name: typing_extensions.Literal["action",b"action","exclude_column_name",b"exclude_column_name","nested",b"nested"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing_extensions.Literal["action",b"action","exclude_column_name",b"exclude_column_name","nested",b"nested"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing_extensions.Literal["action",b"action"]) -> typing.Optional[typing_extensions.Literal["exclude_column_name","nested"]]: ...
 global___BuildMessage = BuildMessage
 
 HTTP_FIELD_NUMBER: builtins.int
-http: google.protobuf.internal.extension_dict._ExtensionFieldDescriptor[
-    google.protobuf.descriptor_pb2.MethodOptions, global___ApiRule
-]
+http: google.protobuf.internal.extension_dict._ExtensionFieldDescriptor[google.protobuf.descriptor_pb2.MethodOptions, global___ApiRule]
 """design like google.api.http"""

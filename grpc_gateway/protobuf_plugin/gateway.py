@@ -1,7 +1,7 @@
 from typing import Any, List, Optional, Union
 
 import grpc
-from pait.app import add_multi_simple_route as _add_multi_simple_route
+from pait.app.any import add_multi_simple_route as _add_multi_simple_route
 from grpc_gateway.base_gateway import BaseGrpcGatewayRoute, BaseGrpcGatewayRouteConfig
 from pait.util import get_real_annotation
 

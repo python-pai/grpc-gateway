@@ -1,8 +1,9 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 from grpc_gateway.model import GrpcServiceOptionModel
 from grpc_gateway.protobuf_types import MethodDescriptorProto, ServiceDescriptorProto
+from pait._pydanitc_adapter import is_v1
 
 if TYPE_CHECKING:
     from grpc_gateway.protobuf_plugin.field_desc_proto_to_route_code import FileDescriptorProtoToRouteCode
@@ -51,11 +52,11 @@ class GrpcTemplateVarModel(object):
     #
     #   grpc-gateway gen var:
     #
-    #       input_type_name =  GetUserInfoRequest  (request message)
-    #       output_type_name = GetUserInfoResponse  (response message)
+    #       input_type_name =  GetUserInfoRequest  ({request message})
+    #       output_type_name = GetUserInfoResponse  ({response message})
 
     #       grpc_method_url = /user_info-UserInfoService/GetUserInfo (/{package}-{service_name}/{method_name})
-    #       method = GetUserInfo (method)
+    #       method = GetUserInfo ({method})
     #       func_name = GetUserInfo_route ({method}_route)
 
     #       Note:
@@ -70,11 +71,11 @@ class GrpcTemplateVarModel(object):
     #       request_message_name = user_info_pb2.GetUserInfoRequest
     #       response_message_name = user_info_pb2.GetUserInfoResponse
     #       stub_service_name = UserInfoService_stub ({service name}_stub)
-    #       service_name = UserInfoService (service name)
+    #       service_name = UserInfoService ({service name})
     #       model_module_name = user_info_p2p ({package}_p2p)
     #       message_module_name = user_info_pb2 ({package}_pb2)
     #       stub_module_name = user_info_pb2_grpc ({package}_pb2_grpc)
-    #       package = user_info (package)
+    #       package = user_info ({package})
     #       # (package.title().replace("_", "") + output_type_name + "JsonResponseModel")
     #       response_class_name = UserInfoGetUserInfoResponseJsonResponseModel
 
@@ -101,3 +102,4 @@ class GrpcTemplateVarModel(object):
     grpc_descriptor_method: MethodDescriptorProto   # protobuf descriptor (by grpc method)
     # plugin gen code
     gen_code: "FileDescriptorProtoToRouteCode"
+    pydantic_is_v1: bool = field(default=is_v1)

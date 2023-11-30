@@ -111,9 +111,9 @@ class TestRebuildMessage:
                 == ComplexDemo.SubDemo.SubSUbDemo.SubSubSubDemo
             )
         else:
-            assert message_args[0].__args__[1].__fields__["c"].annotation.__args__[0] == int
+            assert message_args[0].__args__[1].model_fields["c"].annotation.__args__[0] == int
             assert (
-                message_args[0].__args__[1].__fields__["c"].annotation.__args__[1]
+                message_args[0].__args__[1].model_fields["c"].annotation.__args__[1]
                 == ComplexDemo.SubDemo.SubSUbDemo.SubSubSubDemo
             )
 

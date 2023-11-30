@@ -81,7 +81,11 @@ class FileDescriptorProtoToRouteCode(_FileDescriptorProtoToRouteCode):
                 gateway: "{{gateway_name}}" = pait_context.get().app_helper.get_attributes(
                     "{{attr_prefix}}_{{filename}}_gateway"
                 )
+            {% if pydantic_is_v1 %}
                 request_dict: dict = request_pydantic_model.dict()
+            {% else %}
+                request_dict: dict = request_pydantic_model.model_dump()
+            {% endif %}
                 request_dict["token"] = token
                 request_msg: {{request_message_name}} = gateway.msg_from_dict_handle(
                     {{request_message_name}},
@@ -89,15 +93,9 @@ class FileDescriptorProtoToRouteCode(_FileDescriptorProtoToRouteCode):
                     {{gen_code._get_value_code(grpc_service_option_model.request_message.nested)}}
                 )
             {% if is_async %}
-                loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
-                if loop != getattr(gateway.{{stub_service_name}}.{{method}}, "_loop", None):
-                    raise RuntimeError(
-                        "Loop is not same, "
-                        "the grpc channel must be initialized after the event loop of the api server is initialized"
-                    )
-                else:
-                    grpc_msg: {{response_message_name}} = await gateway.{{stub_service_name}}.{{method}}(
-                        request_msg, metadata=[("req_id", req_id)])
+                gateway.check_event_loop(gateway.{{stub_service_name}}.{{method}})
+                grpc_msg: {{response_message_name}} = await gateway.{{stub_service_name}}.{{method}}(
+                    request_msg, metadata=[("req_id", req_id)])
             {% else %}
                 grpc_msg: {{response_message_name}} = gateway.{{stub_service_name}}.{{method}}(
                     request_msg, metadata=[("req_id", req_id)])
@@ -136,18 +134,17 @@ class FileDescriptorProtoToRouteCode(_FileDescriptorProtoToRouteCode):
             {% else %}
                 request_msg: {{request_message_name}} = gateway.msg_from_dict_handle(
                     {{request_message_name}},
+                {% if pydantic_is_v1 %}
                     request_pydantic_model.dict(),
+                {% else %}
+                    request_pydantic_model.model_dump(),
+                {% endif %}
                     {{gen_code._get_value_code(grpc_service_option_model.request_message.nested, sort=False)}}
                 )
             {% endif %}
 
             {% if is_async %}
-                loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
-                if loop != getattr(gateway.{{stub_service_name}}.{{method}}, "_loop", None):
-                    raise RuntimeError(
-                        "Loop is not same, "
-                        "the grpc channel must be initialized after the event loop of the api server is initialized"
-                    )
+                gateway.check_event_loop(stub.{{method}})
                 # check token
                 result: user_pb2.GetUidByTokenResult = await user_pb2_grpc.UserStub(gateway.channel).get_uid_by_token(
                     user_pb2.GetUidByTokenRequest(token=token)

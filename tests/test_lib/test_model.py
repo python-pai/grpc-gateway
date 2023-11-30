@@ -1,18 +1,11 @@
-import pytest
 from pait import _pydanitc_adapter
 
-from grpc_gateway.model import BuildMessageModel, RequestBuildMessageModel, field_validator
+from grpc_gateway.model import BuildMessageModel, RequestBuildMessageModel
 
 from .util import gen_demo_module, get_grpc_service_model_option
 
 
 class TestBuildMessage:
-    def test_field_validator(self) -> None:
-        if not _pydanitc_adapter.is_v1:
-            return
-        with pytest.raises(ValueError):
-            field_validator("a", mode="a")
-
     def test_build_message(self) -> None:
         a_model = BuildMessageModel(nested=["a", "b", "c"], exclude_column_name=["1", "2", "3"])
         b_model = BuildMessageModel(nested="a/b/c", exclude_column_name="1,2,3")

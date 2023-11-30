@@ -11,59 +11,58 @@ class UserStub:
     def __init__(self, channel: grpc.Channel) -> None: ...
     get_uid_by_token: grpc.UnaryUnaryMultiCallable[
         example.grpc_proto.example_proto_by_option.user.user_pb2.GetUidByTokenRequest,
-        example.grpc_proto.example_proto_by_option.user.user_pb2.GetUidByTokenResult,
-    ]
+        example.grpc_proto.example_proto_by_option.user.user_pb2.GetUidByTokenResult]
     """The interface should not be exposed for external use"""
 
     logout_user: grpc.UnaryUnaryMultiCallable[
-        example.grpc_proto.example_proto_by_option.user.user_pb2.LogoutUserRequest, google.protobuf.empty_pb2.Empty
-    ]
+        example.grpc_proto.example_proto_by_option.user.user_pb2.LogoutUserRequest,
+        google.protobuf.empty_pb2.Empty]
 
     login_user: grpc.UnaryUnaryMultiCallable[
         example.grpc_proto.example_proto_by_option.user.user_pb2.LoginUserRequest,
-        example.grpc_proto.example_proto_by_option.user.user_pb2.LoginUserResult,
-    ]
+        example.grpc_proto.example_proto_by_option.user.user_pb2.LoginUserResult]
 
     create_user: grpc.UnaryUnaryMultiCallable[
-        example.grpc_proto.example_proto_by_option.user.user_pb2.CreateUserRequest, google.protobuf.empty_pb2.Empty
-    ]
+        example.grpc_proto.example_proto_by_option.user.user_pb2.CreateUserRequest,
+        google.protobuf.empty_pb2.Empty]
 
     delete_user: grpc.UnaryUnaryMultiCallable[
-        example.grpc_proto.example_proto_by_option.user.user_pb2.DeleteUserRequest, google.protobuf.empty_pb2.Empty
-    ]
+        example.grpc_proto.example_proto_by_option.user.user_pb2.DeleteUserRequest,
+        google.protobuf.empty_pb2.Empty]
+
 
 class UserServicer(metaclass=abc.ABCMeta):
     @abc.abstractmethod
-    def get_uid_by_token(
-        self,
+    def get_uid_by_token(self,
         request: example.grpc_proto.example_proto_by_option.user.user_pb2.GetUidByTokenRequest,
         context: grpc.ServicerContext,
     ) -> example.grpc_proto.example_proto_by_option.user.user_pb2.GetUidByTokenResult:
         """The interface should not be exposed for external use"""
         pass
+
     @abc.abstractmethod
-    def logout_user(
-        self,
+    def logout_user(self,
         request: example.grpc_proto.example_proto_by_option.user.user_pb2.LogoutUserRequest,
         context: grpc.ServicerContext,
     ) -> google.protobuf.empty_pb2.Empty: ...
+
     @abc.abstractmethod
-    def login_user(
-        self,
+    def login_user(self,
         request: example.grpc_proto.example_proto_by_option.user.user_pb2.LoginUserRequest,
         context: grpc.ServicerContext,
     ) -> example.grpc_proto.example_proto_by_option.user.user_pb2.LoginUserResult: ...
+
     @abc.abstractmethod
-    def create_user(
-        self,
+    def create_user(self,
         request: example.grpc_proto.example_proto_by_option.user.user_pb2.CreateUserRequest,
         context: grpc.ServicerContext,
     ) -> google.protobuf.empty_pb2.Empty: ...
+
     @abc.abstractmethod
-    def delete_user(
-        self,
+    def delete_user(self,
         request: example.grpc_proto.example_proto_by_option.user.user_pb2.DeleteUserRequest,
         context: grpc.ServicerContext,
     ) -> google.protobuf.empty_pb2.Empty: ...
+
 
 def add_UserServicer_to_server(servicer: UserServicer, server: grpc.Server) -> None: ...

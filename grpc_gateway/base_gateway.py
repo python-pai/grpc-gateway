@@ -1,3 +1,4 @@
+import asyncio
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, Generic, Optional, Set, Type, TypeVar, Union
 
@@ -81,8 +82,18 @@ class BaseGrpcGatewayRoute(Generic[ConfigT]):
             else self.config.kwargs_param
         ) or {}
 
+    @staticmethod
+    def check_event_loop(grpc_func: Callable) -> None:
+        """Check whether the event loop of the channel is the same as that of the app"""
+        loop: asyncio.AbstractEventLoop = asyncio.get_event_loop()
+        if loop != getattr(grpc_func, "_loop", None):
+            raise RuntimeError(
+                "Loop is not same, "
+                "the grpc channel must be initialized after the event loop of the api server is initialized"
+            )
+
     def get_msg_from_dict(self, msg: Type[MessageT], request_dict: dict) -> MessageT:
-        """Convert the Json data to the corresponding grpc Message object"""
+        """Convert the Json data to the grpc Message object"""
         if self.config.parse_dict:
             request_msg: MessageT = self.config.parse_dict(request_dict, msg())
         else:

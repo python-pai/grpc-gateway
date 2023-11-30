@@ -5,7 +5,8 @@ from typing import Any
 
 import grpc
 from google.protobuf.json_format import MessageToDict  # type: ignore
-from pait.app import set_app_attribute
+from pait import _pydanitc_adapter
+from pait.app.any import set_app_attribute
 from pait.field import Header
 from pydantic import BaseModel
 from starlette.applications import Starlette
@@ -83,7 +84,7 @@ def add_grpc_gateway_route(app: Starlette) -> None:
                     req_id: str = Header.i(alias="X-Request-Id", default_factory=lambda: str(uuid4())),
                 ) -> Any:
                     func: Callable = self.get_grpc_func(grpc_model)
-                    request_dict: dict = request_pydantic_model.dict()  # type: ignore
+                    request_dict: dict = _pydanitc_adapter.model_dump(request_pydantic_model)  # type: ignore
                     if grpc_model.grpc_method_url == "/user.User/logout_user":
                         # logout user need token param
                         request_dict["token"] = token

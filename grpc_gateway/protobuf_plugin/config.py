@@ -10,6 +10,13 @@ GatewayModelLiteral = Literal["sync", "asyncio"]
 
 
 class ConfigModel(_ConfigModel):
+    empty_type: Type = Field(
+        default=dict,
+        description=(
+            "googl.protobuf.empty_pb2.Empty cannot be parsed by pydantic, and a type needs to be defined that"
+            " can be resolved"
+        ),
+    )
     desc_template: Type[DescTemplate] = Field(default=DescTemplate)
     gateway_model: GatewayModelLiteral = Field(
         default="sync",
@@ -19,13 +26,6 @@ class ConfigModel(_ConfigModel):
     )
     file_descriptor_proto_to_route_code: Type[FileDescriptorProtoToRouteCode] = Field(
         default=FileDescriptorProtoToRouteCode
-    )
-    empty_type: Type = Field(
-        default=dict,
-        description=(
-            "googl.protobuf.empty_pb2.Empty cannot be parsed by pydantic, and a type needs to be defined that"
-            " can be resolved"
-        ),
     )
     route_file_name_suffix: str = Field(
         default="_pait_route",

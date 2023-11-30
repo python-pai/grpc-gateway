@@ -1,29 +1,10 @@
 import logging
-from typing import Any, Callable, List, Tuple, Union
+from typing import List, Tuple, Union
 
 from google.protobuf.json_format import MessageToDict
 from google.protobuf.message import Message
-from pait import _pydanitc_adapter
+from pait._pydanitc_adapter import field_validator
 from pydantic import BaseModel, Field
-
-if _pydanitc_adapter.is_v1:
-    from pydantic import validator as _field_validator  # type: ignore
-
-    def field_validator(*fields: str, mode: str = "after", **kwargs) -> Callable[[Any], Any]:  # type: ignore
-        if "pre" not in kwargs:
-            if mode == "before":
-                pre = True
-            elif mode == "after":
-                pre = False
-            else:
-                raise ValueError(f"Not support mode: `{mode}`")
-            kwargs["pre"] = pre
-        return _field_validator(*fields, **kwargs)
-
-else:
-    from pydantic import field_validator as _field_validator  # type: ignore
-
-    field_validator = _field_validator  # type: ignore
 
 
 class BuildMessageModel(BaseModel):

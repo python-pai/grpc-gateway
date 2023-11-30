@@ -1,29 +1,34 @@
 # This is an automatically generated file, please do not change
-# gen by protobuf_to_pydantic[v0.2.0.3](https://github.com/so1n/protobuf_to_pydantic)
+# gen by protobuf_to_pydantic[v0.2.1](https://github.com/so1n/protobuf_to_pydantic)
 # Protobuf Version: 3.20.3
 # Pydantic Version: 2.4.2
-import typing
-
 from google.protobuf.message import Message  # type: ignore
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
+from pydantic import Field
+import typing
 
 
 class DemoMessage(BaseModel):
-    a: int = Field(default=0, json_schema_extra={})
-    b: str = Field(default="", json_schema_extra={})
+
+    a: int = Field(default=0)
+    b: str = Field(default="")
 
 
 class SubSubSubNestedMessage(BaseModel):
-    repeated_demo: typing.List[DemoMessage] = Field(default_factory=list, json_schema_extra={})
+
+    repeated_demo: typing.List[DemoMessage] = Field(default_factory=list)
 
 
 class SubSubNestedMessage(BaseModel):
-    map_demo: typing.Dict[str, SubSubSubNestedMessage] = Field(default_factory=dict, json_schema_extra={})
+
+    map_demo: typing.Dict[str, SubSubSubNestedMessage] = Field(default_factory=dict)
 
 
 class SubNestedMessage(BaseModel):
-    repeated_demo: typing.List[SubSubNestedMessage] = Field(default_factory=list, json_schema_extra={})
+
+    repeated_demo: typing.List[SubSubNestedMessage] = Field(default_factory=list)
 
 
 class NestedMessage(BaseModel):
-    map_demo: typing.Dict[str, SubNestedMessage] = Field(default_factory=dict, json_schema_extra={})
+
+    map_demo: typing.Dict[str, SubNestedMessage] = Field(default_factory=dict)
